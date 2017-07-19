@@ -1,0 +1,176 @@
+
+/* GENERAL */
+
+:root {
+    --muted: #DDDDDD;
+    --green: rgba(153, 222, 113, 1.0);
+    --yellow: rgba(253, 253, 150, 1.0);
+    --red: rgba(255, 145, 137, 1.0);
+    --blue: rgba(174, 198, 207, 1.0);
+}
+
+@font-face {
+    font-family: "open_sanslight";
+    src: url("OpenSans-Light-webfont.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+    font-family: open_sanslight, Verdana, sans-serif;
+    padding: 0vmin;
+    margin: 0vmin;
+}
+
+.title {
+    font-size: 1.5vh;
+}
+
+.subtitle {
+    font-size: 1.0vh;
+}
+
+.super {
+    font-size: 5.0vh;
+}
+
+/* HEADER */
+
+#header {
+    width: 100vw;
+    height: 3vh;
+    background-color: black;
+}
+
+#header > div {
+    position: absolute;
+}
+
+#header .icon {
+    left: 1vw;
+    cursor: pointer;
+}
+
+#header .icon > img {
+    height: 3vh;
+}
+
+#header .title {
+    left: 6vw;
+    color: white;
+    font-size: 2.2vh;
+}
+
+/* METRICS */
+
+#metrics {
+    margin-top: 1vh;
+    margin-left: 5vw;
+    margin-right: 5vw;
+    display: flex;
+}
+
+#metrics div.metrics-box {
+    background-color: var(--muted);
+    margin: 0.2vw;
+    width: 25.4vw;
+    padding-top: 0.4vh;
+    padding-bottom: 0.4vh;
+    padding-left: 2.0vw;
+    padding-right: 2.0vw;
+    cursor: pointer;
+}
+
+#metrics div.unknown {
+    background-color: var(--muted);
+}
+
+#metrics div.good {
+    background-color: var(--green);
+}
+
+#metrics div.warn {
+    background-color: var(--yellow);
+}
+
+#metrics div.bad {
+    background-color: var(--red);
+}
+
+#metrics div.metrics-box > div.extra {
+    position: absolute; /* fix for margins */
+}
+
+#metrics div.metrics-box > div.extra > div {
+    position: absolute;
+    top: -5vh;
+    left: 13vw;
+    width: 20vw;
+}
+
+/* THREAT CHARTS */
+
+#threat-charts {
+    margin-top: 4vh;
+    margin-left: 1.5vw;
+    margin-right: 5vw;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+/* TRAFFIC CHART */
+
+#traffic-chart-tabs {
+    margin-top: 4vh;
+    margin-left: 5vw;
+    margin-right: 5vw;
+    margin-bottom: 1vh;
+    display: flex;
+}
+
+#traffic-chart-tabs .tab {
+    margin: 0.2vw;
+    width: 25.4vw;
+    padding-top: 0.4vh;
+    padding-bottom: 0.4vh;
+    padding-left: 2.0vw;
+    padding-right: 2.0vw;
+    cursor: pointer;
+}
+
+#traffic-chart-tabs .tab.selected {
+    background-color: white;
+}
+
+#traffic-chart-tabs .tab.unselected {
+    background-color: var(--muted);
+}
+
+#traffic-chart-container {
+    position: absolute;
+    left: 5vw;
+    --height: 20vh;
+    height: var(--height);
+    --width: 90vw;
+    width: var(--width);
+    overflow: hidden;
+}
+
+#traffic-chart-container > div { /* individual charts */
+    position: absolute;
+    height: var(--height);
+    width: var(--width);
+}
+
+#traffic-chart-container .column1 {
+    left: 0vw;
+}
+
+#traffic-chart-container .column2 {
+    left: var(--width);
+}
+
+#traffic-chart-container .column3 {
+    left: calc(var(--width) * 2);
+}

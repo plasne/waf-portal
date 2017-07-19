@@ -1,0 +1,135 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js" integrity="sha256-VNbX9NjQNRW+Bk02G/RO6WiTKuhncWI4Ey7LkSbE+5s=" crossorigin="anonymous"></script>
+        <script src="visualize.js"></script>
+        <link href="visualize.css" rel="stylesheet" />
+    </head>
+    <body>
+
+        <!-- header -->
+        <div id="header">
+            <div class="icon">
+                <img src="menu.png" />
+            </div>
+            <div class="title">METRICS</div>
+        </div>
+
+        <!-- metrics -->
+        <div id="metrics">
+            <div id="metrics-protection" class="metrics-box">
+                <div>
+                    <div class="title">PROTECTION</div>
+                    <div class="subtitle">last hour</div>
+                    <div id="metrics-protection-percentage" class="super">???</div>
+                </div>
+                <div class="extra">
+                    <div>
+                        <div class="subtitle">
+                            <span id="metrics-protection-allowed">???</span>
+                            <span>requests allowed</span>
+                        </div>
+                        <div class="subtitle">
+                            <span id="metrics-protection-blocked">???</span>
+                            <span>requests blocked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="metrics-availability" class="metrics-box">
+                <div>
+                    <div class="title">AVAILABILITY</div>
+                    <div class="subtitle">last hour</div>
+                    <div id="metrics-availability-percentage" class="super">???</div>
+                </div>
+                <div class="extra">
+                    <div>
+                        <div class="subtitle">
+                            <span id="metrics-availability-success">???</span>
+                            <span>requests successful</span>
+                        </div>
+                        <div class="subtitle">
+                            <span id="metrics-availability-fail">???</span>
+                            <span>requests failed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="metrics-response" class="metrics-box">
+                <div>
+                    <div class="title">RESPONSE TIME</div>
+                    <div class="subtitle">average over last hour</div>
+                    <div id="metrics-response-avg" class="super">???</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- threat charts -->
+        <div id="threat-charts">
+            <div>
+                <div>
+                    <span class="title">THREATS BY TYPE</span>
+                    <span class="subtitle">last day</span>
+                </div>
+                <div>
+                    <canvas id="threat-type-chart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <span class="title">THREATS BY LOCATION</span>
+                    <span class="subtitle">last day</span>
+                </div>
+                <div>
+                    <canvas id="threat-location-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- traffic charts -->
+        <div id="traffic-chart-tabs">
+            <div class="tab selected">
+                <div>
+                    <span class="title">REQUEST RATE</span>
+                    <span class="subtitle">last hour</span>
+                </div>
+                <div>
+                    <span id="traffic-rps-last" class="title">???</span>
+                    <span class="subtitle">req/sec</span>
+                </div>
+            </div>
+            <div class="tab unselected">
+                <div>
+                    <span class="title">INBOUND TRAFFIC</span>
+                    <span class="subtitle">last hour</span>
+                </div>
+                <div>
+                    <span id="traffic-in-last" class="title">???</span>
+                    <span class="subtitle">bytes/sec</span>
+                </div>
+            </div>
+            <div class="tab unselected">
+                <div>
+                    <span class="title">OUTBOUND TRAFFIC</span>
+                    <span class="subtitle">last hour</span>
+                </div>
+                <div>
+                    <span id="traffic-out-last" class="title">???</span>
+                    <span class="subtitle">bytes/sec</span>
+                </div>
+            </div>
+        </div>
+        <div id="traffic-chart-container">
+            <div class="column1">
+                <canvas id="traffic-rps-chart"></canvas>
+            </div>
+            <div class="column2">
+                <canvas id="traffic-in-chart"></canvas>
+            </div>
+            <div class="column3">
+                <canvas id="traffic-out-chart"></canvas>
+            </div>
+        </div>
+
+    </body>
+</html>
