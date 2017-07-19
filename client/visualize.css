@@ -112,11 +112,15 @@ html, body {
 
 #threat-charts {
     margin-top: 4vh;
-    margin-left: 1.5vw;
+    margin-left: 5vw;
     margin-right: 5vw;
     display: flex;
     justify-content: space-around;
     text-align: center;
+}
+
+#threat-charts > div {
+    width: 30vw;
 }
 
 /* TRAFFIC CHART */
