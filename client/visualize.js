@@ -64,7 +64,7 @@ function populateThreatChart(src, dst) {
     dst.data.datasets[0].data = [];
 
     // push the new chart data
-    src.forEach((entity) => {
+    src.forEach(function(entity) {
         dst.data.labels.push(entity.name);
         dst.data.datasets[0].data.push(entity.count);
     });
@@ -128,7 +128,7 @@ function populateTrafficChart(src, dst, timeframe, last) {
     dst.data.datasets[1].data = [];
 
     // push the new chart data
-    timeframe.forEach((val) => {
+    timeframe.forEach(function(val) {
         dst.data.labels.push(new Date(val));
     });
     Array.prototype.push.apply(dst.data.datasets[0].data, src.http);
@@ -270,13 +270,13 @@ $(document).ready(function() {
 
     // add clicks for drill-thru
     $("#metrics-protection").click(function() {
-        window.open("/logs.html?scope=protection&from=" + oneHourBack + "&to=" + now, "_blank");
+        window.open("/logs.html?status=blocked&from=" + oneHourBack + "&to=" + now, "_blank");
     });
     $("#metrics-availability").click(function() {
-        window.open("/logs.html?scope=availability&from=" + oneHourBack + "&to=" + now, "_blank");
+        window.open("/logs.html?responseCode=500&from=" + oneHourBack + "&to=" + now, "_blank");
     });
     $("#metrics-response").click(function() {
-        window.open("/logs.html?scope=response&from=" + oneHourBack + "&to=" + now, "_blank");
+        window.open("/logs.html?responseTime=>30&from=" + oneHourBack + "&to=" + now, "_blank");
     });
 
 });

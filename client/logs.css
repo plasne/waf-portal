@@ -1,0 +1,68 @@
+
+html, body {
+    font-size: medium;
+}
+
+img {
+    height: 16px;
+}
+
+.centered {
+    text-align: center;
+}
+
+.right {
+    text-align: right;
+}
+
+.flag {
+    border: 1px solid #AAAAAA;
+}
+
+.note {
+    margin-top: 1vh;
+    margin-left: 5vw;
+    margin-right: 5vw;
+}
+
+#query-criteria {
+    margin-top: 3vh;
+    margin-bottom: 3vh;
+    margin-left: 5vw;
+    margin-right: 5vw;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#query-criteria > div {
+    width: 200px;
+    margin-bottom: 2vh;
+    margin-right: 2vw;
+}
+
+#query-criteria > div.wide {
+    width: 500px;
+}
+
+#query-criteria > div > div {
+    margin-top: 0.2vh;
+}
+
+#query-criteria .query {
+    width: 8vw;
+}
+
+#query-criteria .query > input {
+    margin-top: 2vh;
+    width: 8vw;
+}
+
+input[type="button"], input[type="search"], select {
+    font-family: Verdana, sans-serif;
+    font-size: medium;
+}
+
+#logs {
+    margin-left: 1vw;
+    margin-right: 1vw;
+}

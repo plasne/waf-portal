@@ -3,26 +3,126 @@
         <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
         <script src="//cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" integrity="sha256-1hjUhpc44NwiNg8OwMu2QzJXhD8kcj+sJA3aCQZoUjg=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/js/standalone/selectize.min.js" integrity="sha256-HyBiZFJAMvxOhZoWOc5LWIWaN1gcFi8LjS75BZF4afg=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pickadate.js/3.5.6/compressed/picker.js" integrity="sha256-A1y8n02GW5dvJFkEOX7UCbzJoko8kqgWUquWf9TWFS8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pickadate.js/3.5.6/compressed/picker.date.js" integrity="sha256-rTh8vmcE+ZrUK3k9M6QCNZIBmAd1vumeuJkagq0EU3g=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pickadate.js/3.5.6/compressed/picker.time.js" integrity="sha256-vFMKre5X5oQN63N+oJU9cJzn22opMuJ+G9FWChlH5n8=" crossorigin="anonymous"></script>
         <script src="logs.js"></script>
-        <link href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/css/selectize.min.css" integrity="sha256-4BosA+P6Qycvyi2wsMf6zbq9Em7BJqMXk/SpXbQVJJY=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pickadate.js/3.5.6/compressed/themes/default.css" integrity="sha256-HJnF0By+MMhHfGTHjMMD7LlFL0KAQEMyWB86VbeFn4k=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pickadate.js/3.5.6/compressed/themes/default.date.css" integrity="sha256-Ex8MCGbDP5+fEwTgLt8IbGaIDJu2uj88ZDJgZJrxA4Y=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pickadate.js/3.5.6/compressed/themes/default.time.css" integrity="sha256-0GwWH1zJVNiu4u+bL27FHEpI0wjV0hZ4nSSRM2HmpK8=" crossorigin="anonymous" />
+        <link href="app.css" rel="stylesheet" />
         <link href="logs.css" rel="stylesheet" />
     </head>
     <body>
 
-        <table id="logs">
-            <thead>
-                <tr>
-                    <th>Status</th>
-                    <th>Violation Rating</th>
-                    <th>Time</th>
-                    <th>Source IP</th>
-                    <th>Requested URL</th>
-                    <th>Response Code</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <!-- header -->
+        <div id="header">
+            <div class="icon">
+                <img src="img/menu.png" />
+            </div>
+            <div class="title">LOGS</div>
+        </div>
+
+        <div class="note">Note: For this demo, only Status, Start Date/Time, End Date/Time, Response Code, and Response Time are functional. Violations, Source IP, and URL do not do anything.</div>
+
+        <!-- search criteria -->
+        <div id="query-criteria">
+            <div>
+                <div>Status:</div>
+                <div>
+                    <select id="status">
+                        <option value="">both</option>
+                        <option value="allowed">allowed</option>
+                        <option value="blocked">blocked</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div>Violations:</div>
+                <div>
+                    <select id="violations">
+                        <option value="">any</option>
+                        <option value="0">0 - no violations</option>
+                        <option value="1">1 - minor</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5 - major</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div>Start Date/Time:</div>
+                <div>
+                    <input id="from-date" type="text" class="selectize-input" />
+                </div>
+                <div>
+                    <input id="from-time" type="text" class="selectize-input" />
+                </div>
+            </div>
+            <div>
+                <div>End Date/Time:</div>
+                <div>
+                    <input id="to-date" type="text" class="selectize-input" />
+                </div>
+                <div>
+                    <input id="to-time" type="text" class="selectize-input" />
+                </div>
+            </div>
+            <div>
+                <div>Source IP:</div>
+                <div>
+                    <input id="srcIP" type="text" />
+                </div>
+            </div>
+            <div class="wide">
+                <div>URL:</div>
+                <div>
+                    <input id="url" type="text" />
+                </div>
+            </div>
+            <div>
+                <div>Response Code:</div>
+                <div>
+                    <select id="responseCode">
+                        <option value="200">200</option>
+                        <option value="404">404</option>
+                        <option value="500">500</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div>Response Time:</div>
+                <div>
+                    <input id="responseTime" type="text" />
+                </div>
+            </div>
+            <div class="query">
+                <input id="query" type="button" value="Query" />
+            </div>
+        </div>
+
+        <!-- log grid -->
+        <div id="logs">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Violation Rating</th>
+                        <th>Time</th>
+                        <th>Source IP</th>
+                        <th>Requested URL</th>
+                        <th>Response Code</th>
+                        <th>Response Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
 
     </body>
 </html>

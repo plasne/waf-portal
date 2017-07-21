@@ -19,6 +19,62 @@ function randomFromList(list) {
     return list[index];
 }
 
+function randomResponseTime() {
+    const roll = random(1, 100);
+    if (roll < 70) {
+        return {
+            category: "good",
+            time: random(4, 30)
+        };
+    } else if (roll < 85) {
+        return {
+            category: "warn",
+            time: random(31, 100)
+        };
+    } else {
+        return {
+            category: "bad",
+            time: random(101, 1000)
+        };
+    }
+}
+
+String.prototype.toArrayOfStrings = function() {
+    return this.split(",").map((code) => {
+        return code.trim();
+    });
+}
+
+String.prototype.toArrayOfIntegers = function() {
+    return this.split(",").map((code) => {
+        code = code.trim();
+        return (isNaN(code)) ? null : parseInt(code);
+    }).filter((code) => {
+        return (code != null);
+    });
+}
+
+// >40, <30, etc.
+Array.prototype.isMatchWithAll = function(val) {
+    if (this.length < 1) return false;
+
+    const filtered = this.filter(item => {
+        let num = item.substring(1);
+        if (isNaN(num)) return false;
+        num = parseInt(num);
+        switch (item.substring(0, 1)) {
+            case ">":
+                return (val > num);
+            case "<":
+                return (val < num);
+            default:
+                return false;
+        }
+    });
+
+    return (filtered.length === this.length);
+}
+
 app.get("/metrics", function(req, res) {
 
     // generate the frame to hold the data
@@ -63,17 +119,9 @@ app.get("/metrics", function(req, res) {
     }
 
     // generate a range of response times
-    const roll = random(1, 100);
-    if (roll < 70) {
-        metrics.response.status = "good";
-        metrics.response.avg = random(4, 30);
-    } else if (roll < 85) {
-        metrics.response.status = "warn";
-        metrics.response.avg = random(31, 100);
-    } else {
-        metrics.response.status = "bad";
-        metrics.response.avg = random(101, 1000)
-    }
+    const response = randomResponseTime();
+    metrics.response.status = response.status;
+    metrics.response.avg = response.time;
 
     res.send(metrics);
 });
@@ -166,38 +214,90 @@ app.get("/logs", function(req, res) {
     const now = new Date();
 
     // NOTE: in a real implementation you would take into account:
-    // scope
+    // 
+
+    // status
+    const status = req.query.status;
+
+    // response code
+    let responseCode = req.query.responseCode;
+    if (responseCode) responseCode = responseCode.toArrayOfIntegers();
+
+    // response time
+    let responseTime = req.query.responseTime;
+    if (responseTime) responseTime = responseTime.toArrayOfStrings();
 
     // from date/time
     let from = req.query.from;
-    if (Number.isInteger(from)) {
-        from = new Date(from);
-    } else {
+    if (isNaN(from)) {
         from = now - (24 * 60 * 60 * 1000);
+    } else {
+        from = parseInt(from);
     }
 
     // to date/time
     let to = req.query.to;
-    if (Number.isInteger(to)) {
-        to = new Date(to);
-    } else {
+    if (isNaN(to)) {
         to = now;
+    } else {
+        to = parseInt(to);
     }
 
     // generate data
     const logs = [];
     for (let i = from; i < to; i += (60 * 1000)) {
-        logs.push({
-            status: randomFromList([ "allowed", "blocked" ]),
-            rating: random(1, 5),
-            time: i,
-            srcIP: random(1, 255) + "." + random(1, 255) + "." + random(1, 255) + "." + random(1, 255),
-            url: randomFromList([ "http://application.com/admin", "http://application.com/login", "https://application.com/dashboard", "https://application.com/dashboard?scope=month" ]),
-            response: randomFromList([ 200, 200, 200, 200, 404, 500 ])
-        });
+        const _status = randomFromList([ "allowed", "blocked" ]);
+        const _rating = (status === "allowed") ? 0 : random(1, 5);
+        const _response = randomResponseTime();
+        const _responseCode = randomFromList([ 200, 200, 200, 200, 404, 500 ]);
+        if (
+            (!status || status == _status) &&
+            (!responseCode || responseCode.indexOf(_responseCode) > -1) &&
+            (!responseTime || responseTime.isMatchWithAll(_response.time))
+        ) {
+            logs.push({
+                status: _status,
+                rating: _rating,
+                time: i,
+                srcIP: random(1, 255) + "." + random(1, 255) + "." + random(1, 255) + "." + random(1, 255),
+                srcCountry: randomFromList([ "us", "cn", "fr", "de", "gb", "ru", "ua", "hk", "md", "al" ]),
+                url: randomFromList([ "http://application.com/admin", "http://application.com/login", "https://application.com/dashboard", "https://application.com/dashboard?scope=month" ]),
+                responseCode: _responseCode,
+                responseCategory: _response.category,
+                responseTime: _response.time
+            });
+        }
     }
 
     res.send(logs);
+});
+
+app.get("/violations", function(req, res) {
+    const violations = [];
+
+    const categories = random(5, 10);
+    for (let i = 0; i < categories; i++) {
+        const cid = (i + 1);
+        const category = {
+            id: cid,
+            name: "Violation Category " + cid,
+            violations: []
+        };
+        const types = random(2, 10);
+        for (let j = 0; j < categories; j++) {
+            const tid = (cid + ((j + 1) / 10));
+            const type = {
+                id: tid,
+                name: "Violation Type " + tid,
+                mode: randomFromList([ "off", "learn", "block" ]),
+                count: random(0, 1000)
+            };
+            category.violations.push(type);
+        }
+        violations.push(category);
+    }
+
+    res.send(violations);
 });
 
 app.listen(80, function () {

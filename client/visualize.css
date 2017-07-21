@@ -9,56 +9,16 @@
     --blue: rgba(174, 198, 207, 1.0);
 }
 
-@font-face {
-    font-family: "open_sanslight";
-    src: url("OpenSans-Light-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-}
-
-html, body {
-    font-family: open_sanslight, Verdana, sans-serif;
-    padding: 0vmin;
-    margin: 0vmin;
-}
-
 .title {
-    font-size: 1.5vh;
+    font-size: 1.8vh;
 }
 
 .subtitle {
-    font-size: 1.0vh;
+    font-size: 1.2vh;
 }
 
 .super {
     font-size: 5.0vh;
-}
-
-/* HEADER */
-
-#header {
-    width: 100vw;
-    height: 3vh;
-    background-color: black;
-}
-
-#header > div {
-    position: absolute;
-}
-
-#header .icon {
-    left: 1vw;
-    cursor: pointer;
-}
-
-#header .icon > img {
-    height: 3vh;
-}
-
-#header .title {
-    left: 6vw;
-    color: white;
-    font-size: 2.2vh;
 }
 
 /* METRICS */
