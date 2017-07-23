@@ -3,15 +3,7 @@
 const animationTime = 1000;
 var threat_type_chart, threat_location_chart;
 var traffic_rps_chart, traffic_in_chart, traffic_out_chart;
-
-Number.prototype.toPretty = function(digits) {
-    if (this > 1000000) {
-        return (this / 1000000).toFixed(digits) + "M";
-    } else if (this > 1000) {
-        return (this / 1000).toFixed(digits) + "K";
-    }
-    return this;
-}
+var threats; // need to hold the dataset so it can be mapped back for click events
 
 // populate metrics
 function clearMetrics() {
@@ -79,9 +71,10 @@ function populateThreatCharts() {
     $.ajax({
         url: "/threats",
         json: true
-    }).done(function(threats, status, xhr) {
-        populateThreatChart(threats.byType, threat_type_chart);
-        populateThreatChart(threats.byLocation, threat_location_chart);
+    }).done(function(t, status, xhr) {
+        threats = t;
+        populateThreatChart(t.byType, threat_type_chart);
+        populateThreatChart(t.byCountry, threat_location_chart);
     }).fail(function(xhr, status, error) {
         alert("fail");
     });
@@ -114,7 +107,37 @@ function generateThreatChart(ctx) {
             ]
         },
         options: {
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            onClick: function(event, elements) {
+                if (elements.length > 0) {
+                    const chart = elements[0]._chart.canvas.id;
+                    
+                    // see which chart was selected
+                    if (chart === "threat-type-chart") {
+                        // open based on violation id
+
+                        // id
+                        const index = elements[0]._index;
+                        const id = threats.byType[index].id;
+
+                        // open window
+                        window.open("/violations.html?violations=" + id, "_blank");
+
+                    } else if (chart === "threat-country-chart") {
+                        // open based on country
+
+                        // id
+                        const index = elements[0]._index;
+                        const id = threats.byCountry[index].id;
+
+                        // open window with 1 week of data
+                        const now = new Date().getTime();
+                        const oneWeekBack = now - (7 * 24 * 60 * 60 * 1000);
+                        window.open("/logs.html?status=blocked&country=" + id + "&from=" + oneWeekBack + "&to=" + now, "_blank");
+
+                    }
+                }
+            }
         }
     });
 }
@@ -221,12 +244,12 @@ function generateTrafficChart(ctx, http, https, y) {
 $(document).ready(function() {
 
     // defaults
-    Chart.defaults.global.defaultFontFamily = "open_sanslight, Verdana, sans-serif";
+    Chart.defaults.global.defaultFontFamily = "Verdana, sans-serif";
 
     // create the threat charts
     const threat_type_chart_ctx = $("#threat-type-chart").get(0).getContext("2d");
     threat_type_chart = generateThreatChart(threat_type_chart_ctx);
-    const threat_location_chart_ctx = $("#threat-location-chart").get(0).getContext("2d");
+    const threat_location_chart_ctx = $("#threat-country-chart").get(0).getContext("2d");
     threat_location_chart = generateThreatChart(threat_location_chart_ctx);
 
     // create the traffic charts
@@ -278,5 +301,15 @@ $(document).ready(function() {
     $("#metrics-response").click(function() {
         window.open("/logs.html?responseTime=>30&from=" + oneHourBack + "&to=" + now, "_blank");
     });
+
+    // hide extra details if too small
+    $(window).resize(function() {
+        const box = $("#metrics div.metrics-box");
+        if ($(box).width() < 325) {
+            $("#metrics .extra").hide();
+        } else {
+            $("#metrics .extra").show();
+        }
+    }).trigger("resize");
 
 });

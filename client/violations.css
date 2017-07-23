@@ -1,8 +1,28 @@
 
 table.dataTable tbody tr.group {
-    background-color: #BBBBBB;
+    background-color: #DDDDDD;
+    background-color: var(--muted);
 }
 
-.indent {
-    padding-left: 16px;
+input[type="button"], input[type="search"], select {
+    font-family: Verdana, sans-serif;
+    font-size: medium;
+}
+
+#violations {
+    margin-top: 2vh;
+    margin-left: 1vw;
+    margin-right: 1vw;
+}
+
+#violations div.radio > input[type="button"] {
+    width: 60px;
+}
+
+#violations div.radio > input[type="button"].selected {
+    background-color: #AAAAAA;
+}
+
+#violations div.radio > input[type="button"].unselected {
+    background-color: white;
 }

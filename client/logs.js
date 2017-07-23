@@ -1,52 +1,26 @@
 
-String.prototype.toArrayOfStrings = function() {
-    return this.split(",").map(function(code) {
-        return code.trim();
-    });
-}
-
-String.prototype.toArrayOfIntegers = function() {
-    return this.split(",").map(function(code) {
-        code = code.trim();
-        return (isNaN(code)) ? null : parseInt(code);
-    }).filter(function(code) {
-        return (code != null);
-    });
-}
-
-function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    const val = decodeURIComponent(results[2].replace(/\+/g, " "));
-    if (isNaN(val)) {
-        return val.toString();
-    } else {
-        return parseInt(val);
-    }
-}
-
 function getQueryURL() {
 
     // get the variables
     const status = $("#status").val().toString();
+    const violations = $("#violations").val().toString();
     const from_date = $("#from-date").val();
     const from_time = $("#from-time").val();
     const from = moment(from_date + " " + from_time, "D MMMM, YYYY h:mm A");
     const to_date = $("#to-date").val();
     const to_time = $("#to-time").val();
     const to = moment(to_date + " " + to_time);
+    const country = $("#country").val();
     const responseCode = $("#responseCode").val().toString();
     const responseTime = $("#responseTime").val().toString();
 
     // generate the URL
     const url = "/logs?" +
         ((status) ? "status=" + status + "&" : "") +
+        ((violations) ? "violations=" + violations + "&" : "") +
         ((from.isValid()) ? "from=" + from.valueOf() + "&" : "") +
         ((to.isValid()) ? "to=" + to.valueOf() + "&" : "") +
+        ((country) ? "country=" + country + "&" : "") +
         ((responseCode) ? "responseCode=" + responseCode + "&" : "") +
         ((responseTime) ? "responseTime=" + responseTime + "&" : "");
 
@@ -66,81 +40,156 @@ function query(table) {
     });
 }
 
+function displayCriteria(table) {
+
+    // query for a list of violations
+    const p1 = $.ajax({
+        url: "/violations",
+        json: true
+    });
+
+    // query for a list of countries
+    const p2 = $.ajax({
+        url: "/countries",
+        json: true
+    });
+
+    // when all queries are done
+    $.when(p1, p2).done(function(r1, r2) {
+        const categories = r1[0];
+        const countries = r2[0];
+
+        // get query string parameters
+        const status = getParameterByName("status");
+        let violations = getParameterByName("violations");
+        const from = getParameterByName("from");
+        const to = getParameterByName("to");
+        let country = getParameterByName("country");
+        let responseCode = getParameterByName("responseCode");
+        let responseTime = getParameterByName("responseTime");
+
+        // status
+        $("#status").val(status).chosen({
+            width: "100%"
+        });
+
+        // violations
+        const tag_violations = $("#violations");
+        const violations_list = categories.forEach(function(category) {
+            const optgroup = $("<optgroup />").attr("label", category.name).appendTo(tag_violations);
+            category.violations.forEach(function(violation) {
+                $("<option />").val(violation.id).text(violation.name).appendTo(optgroup);
+            });
+            $("</optgroup>").appendTo(tag_violations);
+        });
+        if (violations) violations = violations.toString().toArrayOfStrings();
+        $("#violations").val(violations).chosen({
+            width: "100%",
+            placeholder_text_multiple: " "
+        });
+
+        // ratings
+        $("#ratings").chosen({
+            width: "100%",
+            placeholder_text_multiple: " "
+        });
+
+        // from
+        if (!isNaN(from)) {
+            const ts = moment(parseInt(from));
+            $("#from-date").val( ts.format("D MMMM, YYYY") );
+            $("#from-time").val( ts.format("h:mm A") );
+        }
+        $("#from-date").pickadate();
+        $("#from-time").pickatime();
+
+        // to
+        if (!isNaN(to)) {
+            const ts = moment(parseInt(to));
+            $("#to-date").val( ts.format("D MMMM, YYYY") );
+            $("#to-time").val( ts.format("h:mm A") );
+        }
+        $("#to-date").pickadate();
+        $("#to-time").pickatime();
+
+        // country
+        const tag_country = $("#country");
+        countries.forEach(function(country) {
+            $("<option />").val(country.id).text(country.name).appendTo(tag_country);
+        });
+        if (country) country = country.toString().toArrayOfStrings();
+        $("#country").val(country).chosen({
+            width: "100%",
+            placeholder_text_multiple: " "
+        });
+
+        // response code
+        if (responseCode) responseCode = responseCode.toString().toArrayOfIntegers();
+        $("#responseCode").val(responseCode).chosen({
+            width: "100%",
+            placeholder_text_multiple: " "
+        });
+
+        // response time
+        if (responseTime) $("#responseTime").val(responseTime);
+
+        // display the criteria
+        $("#query-criteria").css("display", "flex");
+
+        // query with the incoming values
+        query(table);
+
+    }).fail(function(xhr, status, error) {
+        alert("fail");
+    });
+
+}
+
+function lookup(violations) {
+    window.open("/violations.html?violations=" + violations, "_blank");
+}
+
+function detail(data) {
+
+    // generate an item
+    const item = function(name, value, icon) {
+        return "<div>" +
+            "<div>" + name + ":</div>" +
+            "<div class='indent'>" +
+            ((icon) ? "<img src='" + icon + "' /> " : "") +
+            value +
+            "</div>" +
+            "</div>";
+    }
+
+    // generate the whole container
+    return "<div class='detail'>" +
+        "<div class='detail-items'>" +
+        item("Security Policy", data.securityPolicy) +
+        item("Support ID", data.supportId) +
+        item("Severity", data.severity, (data.severity === "Error") ? "img/x.png" : "img/check.png") +
+        item("Username", data.username) +
+        item("Session ID", data.sessionId) +
+        item("Destination IP", data.dstIP) +
+        item("Origin Country", data.country, "flags/4x3/" + data.countryId + ".svg") +
+        "</div><div class='detail-btns'>" +
+        ((data.status === "allowed") ? "<div><input type='button' value='block' disabled /></div>" : "") +
+        ((data.status === "blocked") ? "<div><input type='button' value='allow' disabled /></div>" : "") +
+        "<div><input type='button' value='lookup violations' onclick='lookup(\"" + data.violations + "\")' /></div>" +
+        "<div><input type='button' value='block origin country' disabled /></div>" +
+        "<div><input type='button' value='block source IP' disabled /></div>" +
+        "</div>" +
+        "</div>";
+
+}
+
 $(document).ready(function() {
 
-    // get query string parameters
-    const status = getParameterByName("status");
-    const from = getParameterByName("from");
-    const to = getParameterByName("to");
-    let responseCode = getParameterByName("responseCode");
-    let responseTime = getParameterByName("responseTime");
-
-    // setup query criteria
-    $("#status").val(status).selectize({
-        create: false,
-        allowEmptyOption: true
-    });
-    $("#violations").selectize({
-        create: false,
-        allowEmptyOption: true,
-        maxItems: null,
-        render: {
-            item: function(item, escape) {
-                if (item.value === "") {
-                    return "<div>any</div>";
-                } else if (item.value == 0) {
-                    return "<div><img src='img/5-good.png' /></div>";
-                } else {
-                    return "<div><img src='img/" + item.value + "-bad.png' /></div>";
-                }
-            },
-            option: function(item, escape) {
-                if (item.value === "") {
-                    return "<div>any</div>";
-                } else if (item.value == 0) {
-                    return "<div><img src='img/5-good.png' /></div>";
-                } else {
-                    return "<div><img src='img/" + item.value + "-bad.png' /></div>";
-                }
-            }
-        }
-    });
-    if (Number.isInteger(from)) {
-        $("#from-date").val( moment(from).format("D MMMM, YYYY") );
-        $("#from-time").val( moment(from).format("h:mm A") );
-    }
-    $("#from-date").pickadate();
-    $("#from-time").pickatime();
-    if (Number.isInteger(from)) {
-        $("#to-date").val( moment(to).format("D MMMM, YYYY") );
-        $("#to-time").val( moment(to).format("h:mm A") );
-    }
-    $("#to-date").pickadate();
-    $("#to-time").pickatime();
-    $("#srcIP").selectize({
-        create: true,
-        placeholder: "11.*, 11.11.11.11, etc."
-    });
-    $("#url").selectize({
-        create: true
-    });
-    if (responseCode) responseCode = responseCode.toString().toArrayOfIntegers();
-    $("#responseCode").selectize({
-        create: true,
-        items: responseCode,
-        maxItems: null
-    });
-    if (responseTime) $("#responseTime").val(responseTime);
-    $("#responseTime").selectize({
-        create: true,
-        placeholder: ">20, <40, etc.",
-        maxItems: null
-    });
-
     // define the table
-    const table = $("#logs > table").DataTable({
+    const table = $("#logs table").DataTable({
         columns: [
             {
+                title: "Status",
                 data: "status",
                 width: "20px",
                 className: "centered",
@@ -160,6 +209,12 @@ $(document).ready(function() {
                 }
             },
             {
+                title: "Violations",
+                data: "violations",
+                width: "100px"
+            },
+            {
+                title: "Violation Rating",
                 data: "rating",
                 width: "100px",
                 render: function(data, type, row) {
@@ -171,8 +226,9 @@ $(document).ready(function() {
                 }
             },
             {
+                title: "Timestamp",
                 data: "time",
-                width: "150px",
+                width: "160px",
                 render: function(data, type, row) {
                     if (type === "display") {
                         return moment(data).format("M-D-YY H:mm:ss");
@@ -182,20 +238,23 @@ $(document).ready(function() {
                 }
             },
             {
+                title: "Source IP",
                 data: "srcIP",
-                width: "180px",
+                width: "200px",
                 render: function(data, type, row) {
                     if (type === "display") {
-                        return "<img class='flag' src='flags/4x3/" + row.srcCountry + ".svg' /> " + data;
+                        return "<img class='flag' src='flags/4x3/" + row.countryId + ".svg' /> " + data;
                     } else {
                         return data;
                     }
                 }
             },
             {
+                title: "Requested URL",
                 data: "url"
             },
             {
+                title: "Response Code",
                 data: "responseCode",
                 width: "50px",
                 render: function(data, type, row) {
@@ -212,6 +271,7 @@ $(document).ready(function() {
                 className: "centered"
             },
             {
+                title: "Response Time",
                 data: "responseTime",
                 width: "50px",
                 render: function(data, type, row) {
@@ -224,12 +284,37 @@ $(document).ready(function() {
                 className: "right"
             }
         ],
-        order: [[2, "asc"]],
+        order: [[3, "asc"]],
         pageLength: 10
     });
 
-    // query with the defaults
-    query(table);
+    // add row selection
+    $("#logs table tbody").on("click", "tr", function () {
+        if ($(this).attr("role") === "row") {
+
+            // remove selected style and hide the details window
+            $(this).siblings("tr.selected").removeClass("selected").each(function(_, tr) {
+                const p_row = table.row(tr);
+                if (p_row.child.isShown()) {
+                    p_row.child.hide();
+                }
+            });
+
+            // toggle the class and detail state
+            $(this).toggleClass("selected");
+            const row = table.row(this);
+            if (row.child.isShown()) {
+                row.child.hide();
+            } else {
+                const details = detail(row.data());
+                row.child(details).show();
+            }
+
+        }
+    });
+
+    // display the search criteria
+    displayCriteria(table);
 
     // query on button click
     $("#query").click(function() {

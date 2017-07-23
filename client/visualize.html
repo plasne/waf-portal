@@ -3,16 +3,18 @@
     <head>
         <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js" integrity="sha256-VNbX9NjQNRW+Bk02G/RO6WiTKuhncWI4Ey7LkSbE+5s=" crossorigin="anonymous"></script>
+        <script src="app.js"></script>
         <script src="visualize.js"></script>
         <link href="app.css" rel="stylesheet" />
         <link href="visualize.css" rel="stylesheet" />
+        <link href="normalize.css" rel="stylesheet" />
     </head>
     <body>
 
         <!-- header -->
         <div id="header">
             <div class="icon">
-                <img src="img/menu.png" />
+                <img id="header-icon" src="img/menu.png" />
             </div>
             <div class="title">METRICS</div>
         </div>
@@ -65,6 +67,7 @@
                 </div>
             </div>
         </div>
+        <div class="info centered">Click on any of the above blocks to see the traffic that describes that metric.</div>
 
         <!-- threat charts -->
         <div id="threat-charts">
@@ -76,15 +79,17 @@
                 <div>
                     <canvas id="threat-type-chart"></canvas>
                 </div>
+                <div class="info">Click on a slice of the chart to lookup more details about that violation. To view details regarding all violations, click <a href="/violations.html" target="_blank">here</a>.</div>
             </div>
             <div>
                 <div>
-                    <span class="title">THREATS BY LOCATION</span>
+                    <span class="title">THREATS BY COUNTRY</span>
                     <span class="subtitle">last day</span>
                 </div>
                 <div>
-                    <canvas id="threat-location-chart"></canvas>
+                    <canvas id="threat-country-chart"></canvas>
                 </div>
+                <div class="info">Click on a slice of the chart to see all blocked instances originating from that country over the past week.</div>
             </div>
         </div>
 

@@ -1,9 +1,11 @@
 
-@font-face {
-    font-family: "open_sanslight";
-    src: url("OpenSans-Light-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
+:root {
+    --muted: #DDDDDD;
+    --outline: #AAAAAA;
+    --green: rgba(153, 222, 113, 1.0);
+    --yellow: rgba(253, 253, 150, 1.0);
+    --red: rgba(255, 145, 137, 1.0);
+    --blue: rgba(174, 198, 207, 1.0);
 }
 
 html, body {
@@ -34,7 +36,52 @@ html, body {
 }
 
 #header .title {
+    margin-top: 0.2vh;
     left: 6vw;
     color: white;
     font-size: 2.2vh;
+}
+
+#menu {
+    background-color: black;
+    position: absolute;
+    top: 3vh;
+    left: 1vw;
+    display: none;
+}
+
+#menu > div {
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    cursor: pointer;
+    color: white;
+}
+
+#menu > div:hover {
+    background-color: #AAAAAA;
+    color: black;
+}
+
+#menu .menu-sep {
+    border-bottom: 1px solid white;
+}
+
+.info {
+    font-style: italic;
+    color: #BBBBBB; /* fallback for IE */
+    color: var(--outline);
+}
+
+.centered {
+    text-align: center;
+}
+
+.right {
+    text-align: right;
+}
+
+.indent {
+    padding-left: 16px;
 }

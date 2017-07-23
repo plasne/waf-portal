@@ -14,6 +14,16 @@ function random(min, max) {
     return num;
 }
 
+function randomFromListToArray(list, count) {
+    const output = [];
+    while (output.length < count) {
+        const index = random(0, list.length - 1);
+        const value = list[index];
+        if (output.indexOf(value) < 0) output.push(value);
+    }
+    return output;
+}
+
 function randomFromList(list) {
     const index = random(0, list.length - 1);
     return list[index];
@@ -52,6 +62,18 @@ String.prototype.toArrayOfIntegers = function() {
     }).filter((code) => {
         return (code != null);
     });
+}
+
+Array.prototype.hasIntersection = function(arr) {
+    if (this.length < 1 || arr.length < 1) return false;
+
+    for (let i = 0; i < this.length; i++) {
+        const src = this[i];
+        const found = arr.filter(dst => { return src == dst }); // so the comparison isn't type-specific
+        if (found.length > 0) return true;
+    }
+
+    return false;
 }
 
 // >40, <30, etc.
@@ -120,7 +142,7 @@ app.get("/metrics", function(req, res) {
 
     // generate a range of response times
     const response = randomResponseTime();
-    metrics.response.status = response.status;
+    metrics.response.status = response.category;
     metrics.response.avg = response.time;
 
     res.send(metrics);
@@ -131,10 +153,11 @@ app.get("/threats", function(req, res) {
     // generate the frame to hold the data
     const threats = {
         byType: [],
-        byLocation: []
+        byCountry: []
     }
 
     // group by type
+    /*
     const byType = [];
     byType.push({ name: "DoS", count: random(-60, 30) })
     byType.push({ name: "HTTP Violation", count: random(-60, 30) })
@@ -147,20 +170,36 @@ app.get("/threats", function(req, res) {
     byType.push({ name: "Brute Force", count: random(-60, 30) })
     byType.push({ name: "Port Mapping", count: random(-60, 30) })
     threats.byType = byType.filter((type) => { return type.count > 0 });
+    */
+    listOfViolations().forEach(category => {
+        category.violations.forEach(violation => {
+            if (random(1, 4) === 1) { // only generate some
+                threats.byType.push(violation);
+            }
+        });
+    });
 
     // group by location
-    const byLocation = [];
-    byLocation.push({ name: "United States", count: random(-30, 30) })
-    byLocation.push({ name: "China", count: random(-30, 30) })
-    byLocation.push({ name: "France", count: random(-30, 30) })
-    byLocation.push({ name: "Germany", count: random(-30, 30) })
-    byLocation.push({ name: "United Kingdom", count: random(-30, 30) })
-    byLocation.push({ name: "Russia", count: random(-30, 30) })
-    byLocation.push({ name: "Ukraine", count: random(-30, 30) })
-    byLocation.push({ name: "Hong Kong", count: random(-30, 30) })
-    byLocation.push({ name: "Moldova", count: random(-30, 30) })
-    byLocation.push({ name: "Albania", count: random(-30, 30) })
-    threats.byLocation = byLocation.filter((location) => { return location.count > 0 });
+    /*
+    const byCountry = [];
+    byCountry.push({ name: "United States", count: random(-30, 30) })
+    byCountry.push({ name: "China", count: random(-30, 30) })
+    byCountry.push({ name: "France", count: random(-30, 30) })
+    byCountry.push({ name: "Germany", count: random(-30, 30) })
+    byCountry.push({ name: "United Kingdom", count: random(-30, 30) })
+    byCountry.push({ name: "Russia", count: random(-30, 30) })
+    byCountry.push({ name: "Ukraine", count: random(-30, 30) })
+    byCountry.push({ name: "Hong Kong", count: random(-30, 30) })
+    byCountry.push({ name: "Moldova", count: random(-30, 30) })
+    byCountry.push({ name: "Albania", count: random(-30, 30) })
+    threats.byCountry = byCountry.filter((location) => { return location.count > 0 });
+    */
+    listOfCountries().forEach(country => {
+        if (random(1, 2) === 1) { // only generate some
+            country.count = random(1, 30);
+            threats.byCountry.push(country);
+        }
+    });
 
     res.send(threats);
 });
@@ -210,6 +249,55 @@ app.get("/traffic", function(req, res) {
     res.send(traffic);
 });
 
+function listOfViolations() {
+    const violations = [];
+
+    for (let i = 0; i < 6; i++) {
+        const cid = (i + 1);
+        const category = {
+            id: cid,
+            name: "Violation Category " + cid,
+            violations: []
+        };
+        for (let j = 0; j < 4; j++) {
+            const tid = (cid + ((j + 1) / 10));
+            const type = {
+                id: tid,
+                name: "Violation Type " + tid,
+                mode: randomFromList([ "off", "learn", "block" ]),
+                count: random(0, 1000)
+            };
+            category.violations.push(type);
+        }
+        violations.push(category);
+    }
+
+    return violations;
+}
+
+app.get("/violations", function(req, res) {
+    res.send(listOfViolations());
+});
+
+function listOfCountries() {
+    return [
+        { id: "us", name: "United States" },
+        { id: "cn", name: "China" },
+        { id: "fr", name: "France" },
+        { id: "de", name: "Germany" },
+        { id: "gb", name: "United Kingdom" },
+        { id: "ru", name: "Russia" },
+        { id: "ua", name: "Ukraine" },
+        { id: "hk", name: "Hong Kong" },
+        { id: "md", name: "Moldova" },
+        { id: "al", name: "Albania" }
+    ];
+}
+
+app.get("/countries", function(req, res) {
+    res.send(listOfCountries());
+});
+
 app.get("/logs", function(req, res) {
     const now = new Date();
 
@@ -218,6 +306,10 @@ app.get("/logs", function(req, res) {
 
     // status
     const status = req.query.status;
+
+    // violations
+    let violations = req.query.violations;
+    if (violations) violations = violations.toArrayOfStrings();
 
     // response code
     let responseCode = req.query.responseCode;
@@ -243,61 +335,58 @@ app.get("/logs", function(req, res) {
         to = parseInt(to);
     }
 
+    // country
+    let country = req.query.country;
+    if (country) country = country.toArrayOfStrings();
+
+    // generate a list of violations
+    const violations_list = listOfViolations().reduce((output, category) => {
+        category.violations.forEach(violation => {
+            output.push(violation.id);
+        });
+        return output;
+    }, []);
+
     // generate data
     const logs = [];
     for (let i = from; i < to; i += (60 * 1000)) {
         const _status = randomFromList([ "allowed", "blocked" ]);
+        const _violations = (_status === "blocked") ? randomFromListToArray(violations_list, random(1, 3)) : [];
         const _rating = (status === "allowed") ? 0 : random(1, 5);
         const _response = randomResponseTime();
         const _responseCode = randomFromList([ 200, 200, 200, 200, 404, 500 ]);
+        const _country = randomFromList(listOfCountries());
+        const _supportId = "00000000" + random(1, 99999999);
         if (
             (!status || status == _status) &&
+            (!violations || violations.hasIntersection(_violations)) &&
             (!responseCode || responseCode.indexOf(_responseCode) > -1) &&
-            (!responseTime || responseTime.isMatchWithAll(_response.time))
+            (!responseTime || responseTime.isMatchWithAll(_response.time)) &&
+            (!country || country.indexOf(_country.id) > -1)
         ) {
             logs.push({
                 status: _status,
+                violations: _violations,
                 rating: _rating,
                 time: i,
                 srcIP: random(1, 255) + "." + random(1, 255) + "." + random(1, 255) + "." + random(1, 255),
-                srcCountry: randomFromList([ "us", "cn", "fr", "de", "gb", "ru", "ua", "hk", "md", "al" ]),
+                countryId: _country.id,
+                country: _country.name,
                 url: randomFromList([ "http://application.com/admin", "http://application.com/login", "https://application.com/dashboard", "https://application.com/dashboard?scope=month" ]),
                 responseCode: _responseCode,
                 responseCategory: _response.category,
-                responseTime: _response.time
+                responseTime: _response.time,
+                securityPolicy: randomFromList([ "security_policy_1.1", "security_policy_1.2", "security_policy_1.3" ]),
+                supportId: _supportId.substr(_supportId.length - 8),
+                severity: (_status === "blocked") ? "Error" : "OK",
+                username: randomFromList([ "N/A", "N/A", "N/A", "N/A", "pelasne", "haroldw" ]),
+                sessionId: randomFromList([ "a3309aacb2d105a1", "c47e148k49d9fh4s", "3k32jcc88841383a", "ejfjcjvv1347dkv3" ]),
+                dstIP: "10.0.0." + random(1, 255)
             });
         }
     }
 
     res.send(logs);
-});
-
-app.get("/violations", function(req, res) {
-    const violations = [];
-
-    const categories = random(5, 10);
-    for (let i = 0; i < categories; i++) {
-        const cid = (i + 1);
-        const category = {
-            id: cid,
-            name: "Violation Category " + cid,
-            violations: []
-        };
-        const types = random(2, 10);
-        for (let j = 0; j < categories; j++) {
-            const tid = (cid + ((j + 1) / 10));
-            const type = {
-                id: tid,
-                name: "Violation Type " + tid,
-                mode: randomFromList([ "off", "learn", "block" ]),
-                count: random(0, 1000)
-            };
-            category.violations.push(type);
-        }
-        violations.push(category);
-    }
-
-    res.send(violations);
 });
 
 app.listen(80, function () {

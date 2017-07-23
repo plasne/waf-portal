@@ -7,16 +7,9 @@ img {
     height: 16px;
 }
 
-.centered {
-    text-align: center;
-}
-
-.right {
-    text-align: right;
-}
-
 .flag {
-    border: 1px solid #AAAAAA;
+    border: 1px solid #BBBBBB;    /* fallback for IE */
+    border: 1px solid var(--outline);
 }
 
 .note {
@@ -25,12 +18,23 @@ img {
     margin-right: 5vw;
 }
 
+input, select {
+    font-family: Verdana, sans-serif;
+    font-size: medium;
+}
+
+input { /* to match chosen */
+    padding: 4px 5px;
+    border: solid 1px #aaa;
+    background-color: #fff;
+    background-image: linear-gradient(#eee 1%,#fff 15%);
+}
+
 #query-criteria {
     margin-top: 3vh;
-    margin-bottom: 3vh;
     margin-left: 5vw;
     margin-right: 5vw;
-    display: flex;
+    display: none;
     flex-wrap: wrap;
 }
 
@@ -55,14 +59,81 @@ img {
 #query-criteria .query > input {
     margin-top: 2vh;
     width: 8vw;
-}
-
-input[type="button"], input[type="search"], select {
-    font-family: Verdana, sans-serif;
-    font-size: medium;
+    background-image: linear-gradient(rgb(255, 255, 255) 0%, rgb(220, 220, 220) 100%);
 }
 
 #logs {
+    margin-top: 3vh;
     margin-left: 1vw;
     margin-right: 1vw;
+}
+
+#logs table tbody {
+    cursor: pointer;
+}
+
+#logs .selected {
+    background-color: #DDDDDD; /* fallback for IE */
+    background-color: var(--muted);
+}
+
+#logs .detail {
+    background-color: #EEEEEE;
+}
+
+#logs .detail-items,
+#logs .detail-btns
+{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#logs .detail-items > div,
+#logs .detail-btns > div
+{
+    padding: 1vmax;
+}
+
+/* overwride chosen styles to add some images */
+
+.chosen-container .chosen-results li.img-5-good
+{
+    background: url(img/5-good.png);
+}
+
+.chosen-container .chosen-results li.img-5-bad {
+    background: url(img/5-bad.png);
+}
+
+.chosen-container .chosen-results li.img-4-bad {
+    background: url(img/4-bad.png);
+}
+
+.chosen-container .chosen-results li.img-3-bad {
+    background: url(img/3-bad.png);
+}
+
+.chosen-container .chosen-results li.img-2-bad {
+    background: url(img/2-bad.png);
+}
+
+.chosen-container .chosen-results li.img-1-bad {
+    background: url(img/1-bad.png);
+}
+
+.chosen-container .chosen-results li.img-5-good,
+.chosen-container .chosen-results li.img-5-bad,
+.chosen-container .chosen-results li.img-4-bad,
+.chosen-container .chosen-results li.img-3-bad,
+.chosen-container .chosen-results li.img-2-bad,
+.chosen-container .chosen-results li.img-1-bad
+{
+    background-size: 100px 18px;
+    background-repeat: no-repeat;
+    background-position: 10px 3px;
+}
+
+.chosen-container .chosen-results li.highlighted {
+  background-color: #3875d7;
+  color: #fff;
 }

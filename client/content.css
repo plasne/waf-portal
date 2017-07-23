@@ -1,0 +1,126 @@
+
+html, body {
+    font-family: Proxima, Helvetica, Arial, sans-serif;
+    padding: 0vmin;
+    margin: 0vmin;
+}
+
+.header {
+    margin-left: 45px;
+    margin-right: 45px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header svg,
+.header img {
+    height: 40px;
+}
+
+.header .navigation {
+    display: flex;
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+}
+
+.header .user {
+    display: flex;
+    font-size: 16px;
+    color: rgb(77, 79, 83);
+}
+
+.header .navigation > div,
+.header .user > div {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.header .navigation > div {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.header .user > div {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.header a {
+    color: black;
+    text-decoration: none;
+}
+
+.header a:hover {
+    color: #0083c0;
+}
+
+.footer {
+    margin-top: 80px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-left: 70px;
+    padding-right: 70px;
+    background-color: rgb(77, 79, 83);
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: lighter;
+    color: rgb(191, 191, 191);
+}
+
+.footer > div:nth-child(1) {
+    display: flex;
+    justify-content: space-between;
+    color: white;
+}
+
+.footer > div:nth-child(2) {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.footer > div:nth-child(3) {
+    margin-top: 10px;
+    font-size: 11px;
+}
+
+.footer > div:nth-child(2) > div {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 5px;
+}
+
+.footer h1 {
+    font-size: 16px;
+    line-height: 22px;
+    color: rgb(191, 191, 191);
+}
+
+.footer img {
+    width: 68px;
+    height: 33px;
+}
+
+.svg-up {
+    background-color: #999A9B;
+    width: 26px;
+    height: 26px;
+    padding: 16%;
+    stroke: white;
+    fill: none;
+    transform: rotate(180deg);
+    transform-origin: center;
+    stroke-width: 10px;
+    stroke-linecap: round;
+
+}
+
+.svg-icon {
+    fill: white;
+    stroke: none;
+    height: 16px;
+    width: 16px;
+    margin-right: 8px;
+}

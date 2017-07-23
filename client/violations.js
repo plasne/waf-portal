@@ -1,20 +1,26 @@
 
-function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    const val = decodeURIComponent(results[2].replace(/\+/g, " "));
-    if (isNaN(val)) {
-        return val.toString();
-    } else {
-        return parseInt(val);
-    }
+function mode(button) {
+
+    // get selection and id
+    const bid = button.id.split("-");
+    const selection = bid[1];
+    const id = bid[2];
+
+    // NOTE: in a real interface you would post the change
+
+    // flip the state of the buttons
+    $(button).siblings().removeClass("selected").addClass("unselected");
+    $(button).removeClass("unselected").addClass("selected");
+
 }
 
-function query(table) {
+function lookup(id) {
+    const now = new Date().getTime();
+    const oneWeekBack = now - (7 * 24 * 60 * 60 * 1000);
+    window.open("/logs.html?violations=" + id + "&from=" + oneWeekBack + "&to=" + now, "_blank");
+}
+
+function query(table, search) {
     $.ajax({
         url: "/violations",
         json: true
@@ -36,6 +42,9 @@ function query(table) {
         table.rows.add(violations);
         table.draw();
 
+        // search for a specific set of violations
+        if (search) table.search(search).draw();
+
     }).fail(function(xhr, status, error) {
         alert("fail");
     });
@@ -44,15 +53,20 @@ function query(table) {
 $(document).ready(function() {
 
     // get query string parameters
-    //const status = getParameterByName("status");
+    let violations = getParameterByName("violations");
+    let search = getParameterByName("search")
+    if (violations) {
+        violations = violations.toString().toArrayOfStrings();
+        if (!search) search = "{set}";
+    }
 
     // define the table
     const table = $("#violations > table").DataTable({
         columns: [
             {
-                title: "Name",
+                title: "Violation",
                 data: "name",
-                width: "150px",
+                orderable: false,
                 render: function(data, type, row) {
                     if (type === "display") {
                         return "<div class='indent'>" + data + "</div>";
@@ -66,12 +80,30 @@ $(document).ready(function() {
                 visible: false
             },
             {
-                title: "Mode",
+                title: "Search Set",
                 data: "id",
-                width: "100px",
+                render: function(data, type, row) {
+                    if ( violations && violations.filter(function(id) { return (id == data); }) > 0 ) { // so the matching could be type indifferent
+                        return "{set}";
+                    } else {
+                        return "";
+                    }
+                },
+                visible: false
+            },
+            {
+                title: "Mode",
+                data: "mode",
+                width: "200px",
+                className: "centered",
+                orderable: false,
                 render: function(data, type, row) {
                     if (type === "display") {
-                        return "mode";
+                        return "<div class='radio'>" +
+                            "<input id='mode-off-" + row.id + "' class='" + ((data === "off") ? "selected" : "unselected") + "' type='button' value='off' onclick='mode(this)' />" +
+                            "<input id='mode-learn-" + row.id + "' class='" + ((data === "learn") ? "selected" : "unselected") + "' type='button' value='learn' onclick='mode(this)' />" +
+                            "<input id='mode-block-" + row.id + "' class='" + ((data === "block") ? "selected" : "unselected") + "' type='button' value='block' onclick='mode(this)' />" +
+                            "</div>";
                     } else {
                         return data;
                     }
@@ -80,28 +112,33 @@ $(document).ready(function() {
             {
                 title: "# Events",
                 data: "count",
-                width: "50px",
-                className: "centered"
+                width: "80px",
+                className: "centered",
+                orderable: false
             },
             {
                 title: "Config",
                 data: "id",
-                width: "100px",
+                width: "80px",
+                className: "centered",
+                orderable: false,
                 render: function(data, type, row) {
                     if (type === "display") {
-                        return "config";
+                        return "<input id='config-" + row.id + "' type='button' value='config' disabled />";
                     } else {
                         return data;
                     }
                 }
             },
             {
-                title: "Analyze",
+                title: "Instances",
                 data: "id",
-                width: "100px",
+                width: "80px",
+                className: "centered",
+                orderable: false,
                 render: function(data, type, row) {
                     if (type === "display") {
-                        return "analyze";
+                        return "<input id='instances-" + row.id + "' type='button' value='lookup' onclick='lookup(\"" + row.id + "\")' />";
                     } else {
                         return data;
                     }
@@ -124,6 +161,6 @@ $(document).ready(function() {
     });
 
     // query with the defaults
-    query(table);
+    query(table, search);
 
 });

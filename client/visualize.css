@@ -1,14 +1,6 @@
 
 /* GENERAL */
 
-:root {
-    --muted: #DDDDDD;
-    --green: rgba(153, 222, 113, 1.0);
-    --yellow: rgba(253, 253, 150, 1.0);
-    --red: rgba(255, 145, 137, 1.0);
-    --blue: rgba(174, 198, 207, 1.0);
-}
-
 .title {
     font-size: 1.8vh;
 }
@@ -28,12 +20,16 @@
     margin-left: 5vw;
     margin-right: 5vw;
     display: flex;
+    justify-content: center;
 }
 
 #metrics div.metrics-box {
+    background-color: #DDDDDD;  /* fallback for IE */
     background-color: var(--muted);
     margin: 0.2vw;
     width: 25.4vw;
+    min-width: 200px;
+    max-width: 325px;
     padding-top: 0.4vh;
     padding-bottom: 0.4vh;
     padding-left: 2.0vw;
@@ -42,18 +38,22 @@
 }
 
 #metrics div.unknown {
+    background-color: #DDDDDD;  /* fallback for IE */
     background-color: var(--muted);
 }
 
 #metrics div.good {
+    background-color: rgba(153, 222, 113, 1.0);  /* fallback for IE */
     background-color: var(--green);
 }
 
 #metrics div.warn {
+    background-color: rgba(253, 253, 150, 1.0);  /* fallback for IE */
     background-color: var(--yellow);
 }
 
 #metrics div.bad {
+    background-color: rgba(255, 145, 137, 1.0);  /* fallback for IE */
     background-color: var(--red);
 }
 
@@ -64,7 +64,7 @@
 #metrics div.metrics-box > div.extra > div {
     position: absolute;
     top: -5vh;
-    left: 13vw;
+    left: 170px;
     width: 20vw;
 }
 
@@ -108,14 +108,17 @@
 }
 
 #traffic-chart-tabs .tab.unselected {
+    background-color: #DDDDDD;  /* fallback for IE */
     background-color: var(--muted);
 }
 
 #traffic-chart-container {
     position: absolute;
     left: 5vw;
+    height: 20vh; /* fallback for IE */
     --height: 20vh;
     height: var(--height);
+    width: 90vw; /* fallback for IE */
     --width: 90vw;
     width: var(--width);
     overflow: hidden;
@@ -123,7 +126,9 @@
 
 #traffic-chart-container > div { /* individual charts */
     position: absolute;
+    height: 20vh; /* fallback for IE */
     height: var(--height);
+    width: 90vw; /* fallback for IE */
     width: var(--width);
 }
 
@@ -132,9 +137,11 @@
 }
 
 #traffic-chart-container .column2 {
+    left: 90vw; /* fallback for IE */
     left: var(--width);
 }
 
 #traffic-chart-container .column3 {
+    left: 180vw; /* fallback for IE */
     left: calc(var(--width) * 2);
 }
