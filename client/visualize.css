@@ -59,13 +59,13 @@
 
 #metrics div.metrics-box > div.extra {
     position: absolute; /* fix for margins */
-    font-size: 1.24vw;
+    font-size: 18px;
 }
 
 #metrics div.metrics-box > div.extra > div {
     position: absolute;
     top: -5vh;
-    left: 170px;
+    left: 200px;
     width: 20vw;
 }
 
