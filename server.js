@@ -4,7 +4,7 @@ const app = express();
 app.use(express.static("client"));
 
 app.get("/", function (req, res) {
-    res.redirect("visualize.html");
+    res.redirect("default.html");
 });
 
 function random(min, max) {

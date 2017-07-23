@@ -175,7 +175,7 @@ function detail(data) {
         "</div><div class='detail-btns'>" +
         ((data.status === "allowed") ? "<div><input type='button' value='block' disabled /></div>" : "") +
         ((data.status === "blocked") ? "<div><input type='button' value='allow' disabled /></div>" : "") +
-        "<div><input type='button' value='lookup violations' onclick='lookup(\"" + data.violations + "\")' /></div>" +
+        ((data.status === "blocked") ? "<div><input type='button' value='lookup violations' onclick='lookup(\"" + data.violations + "\")' /></div>" : "") +
         "<div><input type='button' value='block origin country' disabled /></div>" +
         "<div><input type='button' value='block source IP' disabled /></div>" +
         "</div>" +
