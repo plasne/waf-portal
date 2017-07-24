@@ -1,5 +1,14 @@
 
+function isProcessing(state) {
+    if (state) {
+        $(".dataTables_processing", $("#applications > table").closest(".dataTables_wrapper")).show();
+    } else {
+        $(".dataTables_processing", $("#applications > table").closest(".dataTables_wrapper")).hide();
+    }
+}
+
 function query(table) {
+    isProcessing(true);
     $.ajax({
         url: "/applications",
         json: true
@@ -11,8 +20,10 @@ function query(table) {
         // render
         table.rows.add(applications);
         table.draw();
+        isProcessing(false);
 
     }).fail(function(xhr, status, error) {
+        isProcessing(false);
         alert("fail");
     });
 }

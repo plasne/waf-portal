@@ -27,7 +27,16 @@ function getQueryURL() {
     return url;
 }
 
+function isProcessing(state) {
+    if (state) {
+        $(".dataTables_processing", $("#logs > table").closest(".dataTables_wrapper")).show();
+    } else {
+        $(".dataTables_processing", $("#logs > table").closest(".dataTables_wrapper")).hide();
+    }
+}
+
 function query(table) {
+    isProcessing(true);
     $.ajax({
         url: getQueryURL(),
         json: true
@@ -35,7 +44,9 @@ function query(table) {
         table.clear();
         table.rows.add(logs);
         table.draw();
+        isProcessing(false);
     }).fail(function(xhr, status, error) {
+        isProcessing(false);
         alert("fail");
     });
 }
@@ -186,7 +197,7 @@ function detail(data) {
 $(document).ready(function() {
 
     // define the table
-    const table = $("#logs table").DataTable({
+    const table = $("#logs > table").DataTable({
         columns: [
             {
                 title: "Status",
@@ -285,7 +296,8 @@ $(document).ready(function() {
             }
         ],
         order: [[3, "asc"]],
-        pageLength: 10
+        pageLength: 10,
+        processing: true
     });
 
     // add row selection

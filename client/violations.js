@@ -20,7 +20,16 @@ function lookup(id) {
     window.open("/logs.html?violations=" + id + "&from=" + oneWeekBack + "&to=" + now, "_blank");
 }
 
+function isProcessing(state) {
+    if (state) {
+        $(".dataTables_processing", $("#violations > table").closest(".dataTables_wrapper")).show();
+    } else {
+        $(".dataTables_processing", $("#violations > table").closest(".dataTables_wrapper")).hide();
+    }
+}
+
 function query(table, search) {
+    isProcessing(true);
     $.ajax({
         url: "/violations",
         json: true
@@ -41,11 +50,13 @@ function query(table, search) {
         // render
         table.rows.add(violations);
         table.draw();
+        isProcessing(false);
 
         // search for a specific set of violations
         if (search) table.search(search).draw();
 
     }).fail(function(xhr, status, error) {
+        isProcessing(false);
         alert("fail");
     });
 }
