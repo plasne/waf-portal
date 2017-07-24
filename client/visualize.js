@@ -152,7 +152,8 @@ function populateTrafficChart(src, dst, timeframe, last) {
 
     // push the new chart data
     timeframe.forEach(function(val) {
-        dst.data.labels.push(new Date(val));
+        const a = moment(val).format("H:mm");
+        dst.data.labels.push(a);
     });
     Array.prototype.push.apply(dst.data.datasets[0].data, src.http);
     Array.prototype.push.apply(dst.data.datasets[1].data, src.https);
@@ -211,23 +212,15 @@ function generateTrafficChart(ctx, http, https, y) {
             scales: {
                 xAxes: [
                     {
-                        id: "minutes",
-                        type: "time",
-                        time: {
-                            unit: "minute",
-                            round: true,
-                            displayFormats: {
-                                minute: "h:mm"
-                            }
-                        },
+                        type: "category",
                         ticks: {
-                            autoSkip: true
+                            autoSkip: true,
+                            maxTicksLimit: 50
                         }
                     }
                 ],
                 yAxes: [
                     {
-                        id: y,
                         type: "linear",
                         position: "left",
                         ticks: {
