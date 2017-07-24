@@ -1,0 +1,50 @@
+
+#create {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+    margin-left: 2vw;
+    margin-right: 2vw;
+}
+
+.info {
+    border: 1px solid rgb(188, 232, 241);
+    background-color: rgb(217, 237, 247);
+    padding: 15px;
+    color: rgb(49, 112, 143);
+}
+
+input[type="button"], input[type="search"], select {
+    font-family: Verdana, sans-serif;
+    font-size: medium;
+}
+
+#applications {
+    margin-top: 2vh;
+    margin-left: 1vw;
+    margin-right: 1vw;
+}
+
+#applications a {
+    color: black;
+}
+
+#applications div.good {
+    padding: 0.5vh;
+    border: 1px solid rgba(117, 169, 87, 1.0);
+    background-color: rgba(153, 222, 113, 1.0);  /* fallback for IE */
+    background-color: var(--green);
+}
+
+#applications div.warn {
+    padding: 0.5vh;
+    border: 1px solid rgba(178, 178, 108, 1.0);
+    background-color: rgba(253, 253, 150, 1.0);  /* fallback for IE */
+    background-color: var(--yellow);
+}
+
+#applications div.bad {
+    padding: 0.5vh;
+    border: 1px solid rgba(194, 110, 104, 1.0);
+    background-color: rgba(255, 145, 137, 1.0);  /* fallback for IE */
+    background-color: var(--red);
+}

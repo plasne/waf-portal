@@ -4,11 +4,11 @@
         <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
         <script src="//cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
         <script src="app.js"></script>
-        <script src="violations.js"></script>
+        <script src="applications.js"></script>
         <link href="normalize.css" rel="stylesheet" />
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" />
         <link href="app.css" rel="stylesheet" />
-        <link href="violations.css" rel="stylesheet" />
+        <link href="applications.css" rel="stylesheet" />
     </head>
     <body>
 
@@ -17,11 +17,16 @@
             <div class="icon">
                 <img id="header-icon" src="img/menu.png" />
             </div>
-            <div class="title">VIOLATIONS</div>
+            <div class="title">APPLICATIONS</div>
+        </div>
+
+        <!-- create -->
+        <div id="create" class="info">
+            <div>To create a new application, click <a href="/create.html">here</a>.</div>
         </div>
 
         <!-- log grid -->
-        <div id="violations">
+        <div id="applications">
             <table></table>
         </div>
 

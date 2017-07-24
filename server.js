@@ -97,6 +97,61 @@ Array.prototype.isMatchWithAll = function(val) {
     return (filtered.length === this.length);
 }
 
+app.get("/applications", function(req, res) {
+    const apps = [];
+
+    const count = random(5, 9);
+    for (let i = 0; i < count; i++) {
+
+        // generate the frame
+        const app = {
+            name: "Application " + (i + 1),
+            protection: {
+                allowed: random(10000, 20000),
+                blocked: random(0, 15000),
+                status: "unknown"
+            },
+            availability: {
+                success: random(10000, 20000),
+                fail: random(0, 1500),
+                status: "unknown"
+            },
+            response: {
+                avg: 0,
+                status: "unknown"
+            }
+        };
+
+        // assign protection status
+        if (app.protection.blocked > app.protection.allowed) {
+            app.protection.status = "bad";
+        } else if (app.protection.blocked > (app.protection.allowed / 2)) {
+            app.protection.status = "warn";
+        } else {
+            app.protection.status = "good";
+        }
+
+        // assign availability status
+        const availability = app.availability.success / (app.availability.success + app.availability.fail);
+        if (availability > 0.95) {
+            app.availability.status = "good";
+        } else if (availability > 0.90) {
+            app.availability.status = "warn";
+        } else {
+            app.availability.status = "bad";
+        }
+
+        // generate a response time
+        const response = randomResponseTime();
+        app.response.status = response.category;
+        app.response.avg = response.time;
+
+        apps.push(app);
+    }
+
+    res.send(apps);
+});
+
 app.get("/metrics", function(req, res) {
 
     // generate the frame to hold the data
@@ -157,20 +212,6 @@ app.get("/threats", function(req, res) {
     }
 
     // group by type
-    /*
-    const byType = [];
-    byType.push({ name: "DoS", count: random(-60, 30) })
-    byType.push({ name: "HTTP Violation", count: random(-60, 30) })
-    byType.push({ name: "IP Intelligence", count: random(-60, 30) })
-    byType.push({ name: "Syn Cookies", count: random(-60, 30) })
-    byType.push({ name: "SQL Injection", count: random(-60, 30) })
-    byType.push({ name: "Buffer Overrun", count: random(-60, 30) })
-    byType.push({ name: "Cross-Site Scripting", count: random(-60, 30) })
-    byType.push({ name: "Session Hijacking", count: random(-60, 30) })
-    byType.push({ name: "Brute Force", count: random(-60, 30) })
-    byType.push({ name: "Port Mapping", count: random(-60, 30) })
-    threats.byType = byType.filter((type) => { return type.count > 0 });
-    */
     listOfViolations().forEach(category => {
         category.violations.forEach(violation => {
             if (random(1, 4) === 1) { // only generate some
@@ -180,20 +221,6 @@ app.get("/threats", function(req, res) {
     });
 
     // group by location
-    /*
-    const byCountry = [];
-    byCountry.push({ name: "United States", count: random(-30, 30) })
-    byCountry.push({ name: "China", count: random(-30, 30) })
-    byCountry.push({ name: "France", count: random(-30, 30) })
-    byCountry.push({ name: "Germany", count: random(-30, 30) })
-    byCountry.push({ name: "United Kingdom", count: random(-30, 30) })
-    byCountry.push({ name: "Russia", count: random(-30, 30) })
-    byCountry.push({ name: "Ukraine", count: random(-30, 30) })
-    byCountry.push({ name: "Hong Kong", count: random(-30, 30) })
-    byCountry.push({ name: "Moldova", count: random(-30, 30) })
-    byCountry.push({ name: "Albania", count: random(-30, 30) })
-    threats.byCountry = byCountry.filter((location) => { return location.count > 0 });
-    */
     listOfCountries().forEach(country => {
         if (random(1, 2) === 1) { // only generate some
             country.count = random(1, 30);

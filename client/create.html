@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+        <script src="app.js"></script>
+        <script src="create.js"></script>
+        <link href="normalize.css" rel="stylesheet" />
+        <link href="app.css" rel="stylesheet" />
+        <link href="create.css" rel="stylesheet" />
+    </head>
+    <body>
+
+        <!-- header -->
+        <div id="header">
+            <div class="icon">
+                <img id="header-icon" src="img/menu.png" />
+            </div>
+            <div class="title">CREATE AN APPLICATION</div>
+        </div>
+
+        <!-- form -->
+        <div class="content">
+            <div class="info">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</div>
+            <form>
+                <div class="full">
+                    <div>Name of Application</div>
+                    <div>
+                        <input type="text" />
+                    </div>
+                </div>
+                <div class="half">
+                    <div>Field 1</div>
+                    <div>
+                        <input type="text" />
+                    </div>
+                </div>
+                <div class="half">
+                    <div>Field 2</div>
+                    <div>
+                        <input type="text" />
+                    </div>
+                </div>
+                <div>
+                    <input type="submit" value="Create" />
+                </div>
+            </form>
+        </div>
+        <!-- log grid -->
+        <div id="applications">
+            <table></table>
+        </div>
+
+    </body>
+</html>

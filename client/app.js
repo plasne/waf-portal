@@ -45,6 +45,8 @@ $(document).ready(function() {
         $("<span />").text(title).appendTo(div);
         return div;
     };
+    menuItem("Applications", "/applications.html").appendTo(menu);
+    menuItem("Create an Application", "/create.html").appendTo(menu);
     menuItem("Visualize", "/visualize.html").appendTo(menu);
     menuItem("Logs", "/logs.html").appendTo(menu);
     menuItem("Violations", "/violations.html").addClass("menu-sep").appendTo(menu);
@@ -56,7 +58,7 @@ $(document).ready(function() {
     });
 
     // collapse the menu if anything else is clicked
-    $("body").click(function(evt) {
+    $("html").click(function(evt) {
         if (evt.target.id !== "header-icon") {
             if (menu.is(":visible")) menu.hide();
         }

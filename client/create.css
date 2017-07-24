@@ -6,6 +6,12 @@
     color: rgb(49, 112, 143);
 }
 
+.content {
+    margin-top: 2vh;
+    margin-left: 2vw;
+    margin-right: 2vw;
+}
+
 form {
     display: flex;
     flex-wrap: wrap;
@@ -21,11 +27,11 @@ form > div {
 }
 
 form .half {
-    width: calc(50vw - 70px - 20px);
+    width: calc(50vw - 2vw - 1vw); /* -margin -spacing */
 }
 
 form .full {
-    width: calc(100vw - 140px);
+    width: calc(100vw - 4vw); /* -margins */
 }
 
 form input {
@@ -56,17 +62,4 @@ form input[type="submit"] {
 form input[type="submit"]:hover {
     background-color: #20628D;
     border: 2px solid #20628D;
-}
-
-.separator {
-    border-bottom: 1px solid black;
-}
-
-.content {
-    margin-left: 70px;
-    margin-right: 70px;
-}
-
-.content h1 {
-    font-size: 28px;
 }
