@@ -316,6 +316,16 @@ $(document).ready(function() {
     // display the search criteria
     displayCriteria(table);
 
+    // fix Edge bug where the page options aren't shown
+    const pageLengthOptions = $("select[name='DataTables_Table_0_length']");
+    const countOfPageLengthOptions = $(pageLengthOptions).children().length;
+    if (countOfPageLengthOptions < 1) {
+        $("<option />").val(10).text(10).appendTo(pageLengthOptions);
+        $("<option />").val(25).text(25).appendTo(pageLengthOptions);
+        $("<option />").val(50).text(50).appendTo(pageLengthOptions);
+        $("<option />").val(100).text(100).appendTo(pageLengthOptions);
+    }
+
     // query on button click
     $("#query").click(function() {
         query(table);
