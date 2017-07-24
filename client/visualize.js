@@ -306,7 +306,7 @@ $(document).ready(function() {
     // hide extra details if too small
     $(window).resize(function() {
         const box = $("#metrics div.metrics-box");
-        if ($(box).width() < 325 || $(box).height() < 44) {
+        if ($(box).width() < 325 || $(box).height() < 68) {
             $("#metrics .extra").hide();
         } else {
             $("#metrics .extra").show();
