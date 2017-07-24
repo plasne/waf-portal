@@ -22,9 +22,9 @@ function lookup(id) {
 
 function isProcessing(state) {
     if (state) {
-        $(".dataTables_processing", $("#violations > table").closest(".dataTables_wrapper")).show();
+        $(".dataTables_processing", $("#violations table").closest(".dataTables_wrapper")).show();
     } else {
-        $(".dataTables_processing", $("#violations > table").closest(".dataTables_wrapper")).hide();
+        $(".dataTables_processing", $("#violations table").closest(".dataTables_wrapper")).hide();
     }
 }
 

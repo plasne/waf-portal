@@ -29,9 +29,9 @@ function getQueryURL() {
 
 function isProcessing(state) {
     if (state) {
-        $(".dataTables_processing", $("#logs > table").closest(".dataTables_wrapper")).show();
+        $(".dataTables_processing", $("#logs table").closest(".dataTables_wrapper")).show();
     } else {
-        $(".dataTables_processing", $("#logs > table").closest(".dataTables_wrapper")).hide();
+        $(".dataTables_processing", $("#logs table").closest(".dataTables_wrapper")).hide();
     }
 }
 
