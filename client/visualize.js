@@ -152,8 +152,7 @@ function populateTrafficChart(src, dst, timeframe, last) {
 
     // push the new chart data
     timeframe.forEach(function(val) {
-        //dst.data.labels.push(new Date(val));
-        dst.data.labels.push(parseInt(val));
+        dst.data.labels.push(new Date(val));
     });
     Array.prototype.push.apply(dst.data.datasets[0].data, src.http);
     Array.prototype.push.apply(dst.data.datasets[1].data, src.https);
