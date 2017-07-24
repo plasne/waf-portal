@@ -100,7 +100,7 @@ function generateThreatChart(ctx) {
                         "rgba(89, 173, 208, 1.0)",
                         "rgba(159, 163, 227, 1.0)",
                         "rgba(209, 141, 178, 1.0)",
-                        "rgba(241, 195, 208, 1.0)",
+                        "rgba(241, 195, 208, 1.0)"
                     ],
                     borderWidth: 1
                 }
@@ -111,7 +111,7 @@ function generateThreatChart(ctx) {
             onClick: function(event, elements) {
                 if (elements.length > 0) {
                     const chart = elements[0]._chart.canvas.id;
-                    
+
                     // see which chart was selected
                     if (chart === "threat-type-chart") {
                         // open based on violation id
@@ -152,7 +152,8 @@ function populateTrafficChart(src, dst, timeframe, last) {
 
     // push the new chart data
     timeframe.forEach(function(val) {
-        dst.data.labels.push(new Date(val));
+        //dst.data.labels.push(new Date(val));
+        dst.data.labels.push(parseInt(val));
     });
     Array.prototype.push.apply(dst.data.datasets[0].data, src.http);
     Array.prototype.push.apply(dst.data.datasets[1].data, src.https);

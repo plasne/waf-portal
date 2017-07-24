@@ -95,7 +95,7 @@ function displayCriteria(table) {
         });
 
         // from
-        if (!isNaN(from)) {
+        if (from && !isNaN(from)) {
             const ts = moment(parseInt(from));
             $("#from-date").val( ts.format("D MMMM, YYYY") );
             $("#from-time").val( ts.format("h:mm A") );
@@ -104,7 +104,7 @@ function displayCriteria(table) {
         $("#from-time").pickatime();
 
         // to
-        if (!isNaN(to)) {
+        if (to && !isNaN(to)) {
             const ts = moment(parseInt(to));
             $("#to-date").val( ts.format("D MMMM, YYYY") );
             $("#to-time").val( ts.format("h:mm A") );
