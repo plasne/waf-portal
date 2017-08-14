@@ -33,6 +33,7 @@ express.request.hasRights = function(rights) {
                 }
             }
         });
+        console.log("userHasRight: " + userHasRight);
         return userHasRight;
     } else {
         return false;
