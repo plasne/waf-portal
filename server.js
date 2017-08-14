@@ -10,6 +10,7 @@ const nJwt = require("njwt");
 
 // create the web server
 const app = express();
+app.use(cookieParser());
 app.use(express.static("client"));
 
 // globals
