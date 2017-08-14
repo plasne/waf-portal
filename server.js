@@ -29,7 +29,13 @@ express.request.hasRights = function(rights) {
                 if (Array.isArray(rights)) {
                     userHasRight = verified.body.rights.hasIntersection(rights);
                 } else {
+                    console.log("1: " +  verified.body.rights.indexOf(rights) );
+                    console.log("2: " +  (verified.body.rights.indexOf(rights) > -1) );
+
                     userHasRight = (verified.body.rights.indexOf(rights) > -1);
+
+                    console.log("3: " +  userHasRight );
+
                 }
             }
         });
