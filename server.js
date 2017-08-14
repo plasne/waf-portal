@@ -487,7 +487,7 @@ app.get("/token", function(req, res) {
 
                         // build a list of group names
                         const membership = [];
-                        groups.forEach(group => {
+                        body.value.forEach(group => {
                             if (group.displayName.startsWith(groupPrefix)) {
                                 membership.push(group.displayName.replace(groupPrefix, ""));
                             }
@@ -523,8 +523,7 @@ app.get("/token", function(req, res) {
                         res.redirect("/visualize.html");
 
                     } else {
-                        console.error(response);
-                        res.status(401).send("Unauthorized (membership): " + ((membershipError) ? membershipError : response.statusCode));
+                        res.status(401).send("Unauthorized (membership): " + ((membershipError) ? membershipError : response.statusCode + ", " + body));
                     }
                 });
 
