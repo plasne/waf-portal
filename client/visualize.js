@@ -43,7 +43,11 @@ function populateMetrics() {
         $("#metrics-response-avg").text(metrics.response.avg + "ms");
 
     }).fail(function(xhr, status, error) {
-        alert("fail");
+        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+            window.open("/login", "_self");
+        } else {
+            alert("fail");
+        }
     });
 
 }
@@ -76,7 +80,11 @@ function populateThreatCharts() {
         populateThreatChart(t.byType, threat_type_chart);
         populateThreatChart(t.byCountry, threat_location_chart);
     }).fail(function(xhr, status, error) {
-        alert("fail");
+        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+            window.open("/login", "_self");
+        } else {
+            alert("fail");
+        }
     });
 
 }
@@ -177,7 +185,11 @@ function populateTrafficCharts() {
         populateTrafficChart(traffic.in, traffic_in_chart, traffic.timeframe, "#traffic-in-last");
         populateTrafficChart(traffic.out, traffic_out_chart, traffic.timeframe, "#traffic-out-last");
     }).fail(function(xhr, status, error) {
-        alert("fail");
+        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+            window.open("/login", "_self");
+        } else {
+            alert("fail");
+        }
     });
 
 }

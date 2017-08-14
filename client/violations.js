@@ -57,7 +57,11 @@ function query(table, search) {
 
     }).fail(function(xhr, status, error) {
         isProcessing(false);
-        alert("fail");
+        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+            window.open("/login", "_self");
+        } else {
+            alert("fail");
+        }
     });
 }
 

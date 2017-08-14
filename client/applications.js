@@ -24,8 +24,11 @@ function query(table) {
 
     }).fail(function(xhr, status, error) {
         isProcessing(false);
-        alert(status);
-        alert(error);
+        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+            window.open("/login", "_self");
+        } else {
+            alert("fail");
+        }
     });
 }
 
