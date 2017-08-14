@@ -3,7 +3,8 @@
 		{
 			"name": "waf",
 			"script": "./server.js",
-			"instances": 1
+			"instances": 1,
+			"instance_var": "PM2_INSTANCE_ID"
 		}
 	]
 }
