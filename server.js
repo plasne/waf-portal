@@ -22,24 +22,18 @@ express.request.accessToken = function() {
 express.request.hasRights = function(rights) {
     const req = this;
     const token = req.accessToken();
-    console.log("token: " + token);
     if (token) {
+        let userHasRight = false;
         nJwt.verify(token, jwtKey, function(err, verified) {
             if (!err) {
-                console.log("looking for: " + rights);
-                console.log("has rights: " + verified.body.rights + " is Array? " + Array.isArray(verified.body.rights) + " [0]: " + verified.body.rights[0] );
                 if (Array.isArray(rights)) {
-                    console.log("check as array");
-                    return verified.body.rights.hasIntersection(rights);
+                    userHasRight = verified.body.rights.hasIntersection(rights);
                 } else {
-                    console.log("check as string, " + verified.body.rights.indexOf(rights));
-                    return (verified.body.rights.indexOf(rights) > -1);
+                    userHasRight = (verified.body.rights.indexOf(rights) > -1);
                 }
-            } else {
-                console.error("token error: " + err);
-                return false;
             }
         });
+        return userHasRight;
     } else {
         return false;
     }
