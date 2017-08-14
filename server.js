@@ -13,6 +13,11 @@ const request = require("request");
 const app = express();
 app.use(cookieParser());
 app.use(express.static("client"));
+express.request.accessToken = function() {
+    if (this.cookies.accessToken) return this.cookies.accessToken;
+    if (this.get("Authorization")) return this.get("Authorization").replace("Bearer ", "");
+    return null;
+}
 
 // globals
 const authority = config.get("authority");
@@ -117,6 +122,9 @@ Array.prototype.isMatchWithAll = function(val) {
 
 // get a list of all applications
 app.get("/applications", function(req, res) {
+
+console.log("token: " + req.accessToken());
+
     const apps = [];
 
     const count = random(5, 9);
@@ -520,7 +528,7 @@ app.get("/token", function(req, res) {
                         res.cookie("accessToken", jwt.compact(), {
                             maxAge: duration
                         });
-                        res.redirect("/visualize.html");
+                        res.redirect("/applications.html");
 
                     } else {
                         res.status(401).send("Unauthorized (membership): " + ((membershipError) ? membershipError : response.statusCode + ", " + body));
