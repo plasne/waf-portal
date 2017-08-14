@@ -4,5 +4,7 @@
     "clientSecret": "a0iYeht41POwMbhkTacb8kpgXa9vWgaUw5vhsig2f2Q=",
     "resource": "https://graph.microsoft.com/",
     "redirectUri": "http://pelasne-waf.eastus2.cloudapp.azure.com/token",
-    "jwtKey": "extra-super-secret"
+    "jwtKey": "extra-super-secret",
+    "issuer": "http://pelasne-waf.eastus2.cloudapp.azure.com",
+    "groupPrefix": "testauth_"
 }

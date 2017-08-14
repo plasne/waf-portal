@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const qs = require("querystring");
 const adal = require("adal-node");
 const nJwt = require("njwt");
+const request = require("request");
 
 // create the web server
 const app = express();
@@ -20,6 +21,8 @@ const clientSecret = config.get("clientSecret");
 const resource = config.get("resource");
 const redirectUri = config.get("redirectUri");
 const jwtKey = config.get("jwtKey");
+const issuer = config.get("issuer");
+const groupPrefix = config.get("groupPrefix");
 
 // user-defined functions
 function random(min, max) {
@@ -467,66 +470,75 @@ app.get("/token", function(req, res) {
         res.status(400).send("Bad Request: this does not appear to be part of the same authorization chain.");
     } else {
     
-        // get the access token
-        getAccessTokenFromCode(req.query.code).then(function(tokenResponse) {
+        // get authorization for the Microsoft Graph
+        const context = new adal.AuthenticationContext(authority);
+        context.acquireTokenWithAuthorizationCode(code, redirectUri, resource, clientId, clientSecret, function(tokenError, tokenResponse) {
+            if (!tokenError) {
 
-            // generate a JWT
-            getJwtFromToken(tokenResponse.accessToken, tokenResponse.userId).then(function(jwt) {
-            
-                // return the JWT to the client
-                res.cookie("accessToken", jwt, {
-                    maxAge: 4 * 60 * 60 * 1000 // 4 hours
+                // get the user membership
+                request.get({
+                    uri: "https://graph.microsoft.com/v1.0/me/memberOf?$select=displayName",
+                    headers: {
+                        Authorization: "Bearer " + tokenResponse.accessToken
+                    },
+                    json: true
+                }, function(membershipError, response, body) {
+                    if (!membershipError && response.statusCode == 200) {
+
+                        // build a list of group names
+                        const membership = [];
+                        groups.forEach(group => {
+                            if (group.displayName.startsWith(groupPrefix)) {
+                                membership.push(group.displayName.replace(groupPrefix, ""));
+                            }
+                        });
+
+                        // define rights
+                        const rights = [];
+                        if (membership.indexOf("admins") > -1) {
+                            rights.push("admin");
+                            rights.push("write");
+                            rights.push("read");
+                        } else if (membership.indexOf("users") > -1) {
+                            rights.push("read");
+                        }
+
+                        // build the claims
+                        const claims = {
+                            iss: issuer,
+                            sub: tokenResponse.userId,
+                            scope: membership,
+                            rights: rights
+                        };
+
+                        // build the JWT
+                        const duration = 4 * 60 * 60 * 1000; // 4 hours
+                        const jwt = nJwt.create(claims, jwtKey);
+                        jwt.setExpiration(new Date().getTime() + duration);
+
+                        // set the JWT into a cookie and redirect
+                        res.cookie("accessToken", jwt.compact(), {
+                            maxAge: duration
+                        });
+                        res.redirect("/visualize.html");
+
+                    } else {
+                        res.status(401).send("Unauthorized (membership): " + membershipError);
+                    }
                 });
-                res.redirect("/visualize.html");
 
-            }, function(msg) {
-                res.status(401).send("Unauthorized (jwt): " + msg);
-            }).done();
-        
-        }, function(msg) {
-            res.status(401).send("Unauthorized (access token): " + msg);
-        }).done();
+            } else {
+                res.status(401).send("Unauthorized (access code): " + tokenError);
+            }
+        });
 
     }
  
 });
 
-
-/*
-app.get("/auth", function(req, res) {
-    // this authenticates using AAD and returns a custom JWT with appropriate identity and permissions
-
-    const directory = "microsoft.onmicrosoft.com";
-
-    const context = new adal.AuthenticationContext("https://login.microsoftonline.com/" + directory);
-    context.acquireTokenWithClientCredentials("https://graph.microsoft.com/", clientId, clientSecret, function(err, tokenResponse) {
-        if (!err) {
-
-            request.get({
-                uri: `https://management.azure.com/subscriptions/${subscriptionId}/resourcegroups/${resourceGroup}/providers/Microsoft.DataFactory/datafactories/${dataFactory}/datasets/${dataset}/sliceruns?start=${startTimestamp}&api-version=${adf_version}`,
-                headers: { Authorization: "Bearer " + tokenResponse.accessToken },
-                json: true
-            }, (err, response, body) => {
-                if (!err && response.statusCode == 200) {
-                    res.send(response.body.value);
-                } else {
-                    console.log( JSON.stringify(response.body) );
-                    res.status(500).send("err(400): " + (err || JSON.stringify(response.body)));
-                }
-            });
-
-        } else {
-            res.status(500).send("err(200): Server calls could not authenticate.");
-        }
-    });
-
-
-});
-*/
-
 // redirect to default page
 app.get("/", function (req, res) {
-    res.redirect("default.html");
+    res.redirect("/default.html");
 });
 
 // start the web server listening on port 80
