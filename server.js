@@ -14,10 +14,33 @@ const app = express();
 app.use(cookieParser());
 app.use(express.static("client"));
 express.request.accessToken = function() {
-    if (this.cookies.accessToken) return this.cookies.accessToken;
-    if (this.get("Authorization")) return this.get("Authorization").replace("Bearer ", "");
+    const req = this;
+    if (req.cookies.accessToken) return req.cookies.accessToken;
+    if (req.get("Authorization")) return req.get("Authorization").replace("Bearer ", "");
     return null;
-}
+};
+express.request.hasRights = function(rights) {
+    const req = this;
+    const token = req.accessToken();
+    if (token) {
+        nJwt.verify(token, jwtKey, function(err, verified) {
+            if (!err) {
+                if (Array.isArray(rights)) {
+                    return verified.body.rights.hasIntersection(rights);
+                } else {
+                    return (verified.body.rights.indexOf(rights) > -1);
+                }
+            } else {
+                return false;
+            }
+        });
+    } else {
+        return false;
+    }
+};
+express.request.hasRight = function(right) {
+    return this.hasRights(right); // this is just an alias
+};
 
 // globals
 const authority = config.get("authority");
@@ -122,61 +145,62 @@ Array.prototype.isMatchWithAll = function(val) {
 
 // get a list of all applications
 app.get("/applications", function(req, res) {
+    if (req.hasRight("read")) {
+        const apps = [];
 
-console.log("token: " + req.accessToken());
+        const count = random(5, 9);
+        for (let i = 0; i < count; i++) {
 
-    const apps = [];
+            // generate the frame
+            const app = {
+                name: "Application " + (i + 1),
+                protection: {
+                    allowed: random(10000, 20000),
+                    blocked: random(0, 15000),
+                    status: "unknown"
+                },
+                availability: {
+                    success: random(10000, 20000),
+                    fail: random(0, 1500),
+                    status: "unknown"
+                },
+                response: {
+                    avg: 0,
+                    status: "unknown"
+                }
+            };
 
-    const count = random(5, 9);
-    for (let i = 0; i < count; i++) {
-
-        // generate the frame
-        const app = {
-            name: "Application " + (i + 1),
-            protection: {
-                allowed: random(10000, 20000),
-                blocked: random(0, 15000),
-                status: "unknown"
-            },
-            availability: {
-                success: random(10000, 20000),
-                fail: random(0, 1500),
-                status: "unknown"
-            },
-            response: {
-                avg: 0,
-                status: "unknown"
+            // assign protection status
+            if (app.protection.blocked > app.protection.allowed) {
+                app.protection.status = "bad";
+            } else if (app.protection.blocked > (app.protection.allowed / 2)) {
+                app.protection.status = "warn";
+            } else {
+                app.protection.status = "good";
             }
-        };
 
-        // assign protection status
-        if (app.protection.blocked > app.protection.allowed) {
-            app.protection.status = "bad";
-        } else if (app.protection.blocked > (app.protection.allowed / 2)) {
-            app.protection.status = "warn";
-        } else {
-            app.protection.status = "good";
+            // assign availability status
+            const availability = app.availability.success / (app.availability.success + app.availability.fail);
+            if (availability > 0.95) {
+                app.availability.status = "good";
+            } else if (availability > 0.90) {
+                app.availability.status = "warn";
+            } else {
+                app.availability.status = "bad";
+            }
+
+            // generate a response time
+            const response = randomResponseTime();
+            app.response.status = response.category;
+            app.response.avg = response.time;
+
+            apps.push(app);
         }
 
-        // assign availability status
-        const availability = app.availability.success / (app.availability.success + app.availability.fail);
-        if (availability > 0.95) {
-            app.availability.status = "good";
-        } else if (availability > 0.90) {
-            app.availability.status = "warn";
-        } else {
-            app.availability.status = "bad";
-        }
-
-        // generate a response time
-        const response = randomResponseTime();
-        app.response.status = response.category;
-        app.response.avg = response.time;
-
-        apps.push(app);
+        res.send(apps);
+    } else {
+        res.status(401).send("Unauthorized for read.")
     }
-
-    res.send(apps);
 });
 
 // get a list of all metrics
