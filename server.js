@@ -516,6 +516,7 @@ function consent(res, add) {
         } else {
             const token = buf.toString("base64").replace(/\//g, "_").replace(/\+/g, "-");
             res.cookie("authstate", token);
+            const r = redirectUri + "?redirect=http://www.yahoo.com";
             const url = authority + "/oauth2/authorize?response_type=code&client_id=" + qs.escape(clientId) + "&redirect_uri=" + qs.escape(redirectUri) + "&state=" + qs.escape(token) + "&resource=" + qs.escape(resource) + add;
             res.redirect(url);
         }
@@ -535,6 +536,8 @@ app.get("/login", function(req, res) {
 // once a user has authenticated, generate their authorization token
 app.get("/token", function(req, res) {
     
+console.log("redirect: " + req.query.redirect);
+
     // ensure this is all part of the same authorization chain
     if (req.cookies.authstate !== req.query.state) {
         res.status(400).send("Bad Request: this does not appear to be part of the same authorization chain.");
