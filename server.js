@@ -517,7 +517,7 @@ function consent(res, add) {
             const token = buf.toString("base64").replace(/\//g, "_").replace(/\+/g, "-");
             res.cookie("authstate", token);
             const r = redirectUri + "?redirect=http://www.yahoo.com";
-            const url = authority + "/oauth2/authorize?response_type=code&client_id=" + qs.escape(clientId) + "&redirect_uri=" + qs.escape(redirectUri) + "&state=" + qs.escape(token) + "&resource=" + qs.escape(resource) + add;
+            const url = authority + "/oauth2/authorize?response_type=code&client_id=" + qs.escape(clientId) + "&redirect_uri=" + qs.escape(r) + "&state=" + qs.escape(token) + "&resource=" + qs.escape(resource) + add;
             res.redirect(url);
         }
     });
