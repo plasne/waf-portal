@@ -32,7 +32,7 @@ express.request.hasRights = function(rights) {
                     console.log("check as array");
                     return verified.body.rights.hasIntersection(rights);
                 } else {
-                    console.log("check as string");
+                    console.log("check as string, " + verified.body.rights.indexOf(rights));
                     return (verified.body.rights.indexOf(rights) > -1);
                 }
             } else {
