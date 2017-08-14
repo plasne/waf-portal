@@ -1,12 +1,25 @@
-const express = require("express");
-const app = express();
 
+// includes
+const config = require("config");
+const express = require("express");
+const crypto = require("crypto");
+const qs = require("querystring");
+const adal = require("adal-node");
+const nJwt = require("njwt");
+
+// create the web server
+const app = express();
 app.use(express.static("client"));
 
-app.get("/", function (req, res) {
-    res.redirect("default.html");
-});
+// globals
+const authority = config.get("authority");
+const clientId = config.get("clientId");
+const clientSecret = config.get("clientSecret");
+const resource = config.get("resource");
+const redirectUri = config.get("redirectUri");
+const jwtKey = config.get("jwtKey");
 
+// user-defined functions
 function random(min, max) {
     const f_min = Math.ceil(min);
     const f_max = Math.floor(max);
@@ -97,6 +110,7 @@ Array.prototype.isMatchWithAll = function(val) {
     return (filtered.length === this.length);
 }
 
+// get a list of all applications
 app.get("/applications", function(req, res) {
     const apps = [];
 
@@ -152,6 +166,7 @@ app.get("/applications", function(req, res) {
     res.send(apps);
 });
 
+// get a list of all metrics
 app.get("/metrics", function(req, res) {
 
     // generate the frame to hold the data
@@ -203,6 +218,7 @@ app.get("/metrics", function(req, res) {
     res.send(metrics);
 });
 
+// get a list of all threats
 app.get("/threats", function(req, res) {
 
     // generate the frame to hold the data
@@ -231,6 +247,7 @@ app.get("/threats", function(req, res) {
     res.send(threats);
 });
 
+// get all the traffic data
 app.get("/traffic", function(req, res) {
 
     // generate the frame to hold the data
@@ -276,6 +293,7 @@ app.get("/traffic", function(req, res) {
     res.send(traffic);
 });
 
+// get the list of violations
 function listOfViolations() {
     const violations = [];
 
@@ -306,6 +324,7 @@ app.get("/violations", function(req, res) {
     res.send(listOfViolations());
 });
 
+// get the list of all countries
 function listOfCountries() {
     return [
         { id: "us", name: "United States" },
@@ -325,11 +344,9 @@ app.get("/countries", function(req, res) {
     res.send(listOfCountries());
 });
 
+// get all specific logs
 app.get("/logs", function(req, res) {
     const now = new Date();
-
-    // NOTE: in a real implementation you would take into account:
-    // 
 
     // status
     const status = req.query.status;
@@ -416,6 +433,101 @@ app.get("/logs", function(req, res) {
     res.send(logs);
 });
 
+// redirect through the AAD consent pattern
+function consent(res, add) {
+    crypto.randomBytes(48, function(err, buf) {
+        if (err) {
+            res.status(500).send("Server Error: a crypto token couldn't be created to secure the session.");
+        } else {
+            const token = buf.toString("base64").replace(/\//g, "_").replace(/\+/g, "-");
+            res.cookie("authstate", token);
+            const url = authority + "/oauth2/authorize?response_type=code&client_id=" + qs.escape(clientId) + "&redirect_uri=" + qs.escape(redirectUri) + "&state=" + qs.escape(token) + "&resource=" + qs.escape(resource) + add;
+            res.redirect(url);
+        }
+    });
+}
+
+// a login with administrative consent
+app.get("/consent", function(req, res) {
+    consent(res, "&prompt=admin_consent");
+});
+
+// a login with user consent (if the admin has already consented there is no additional consent required)
+app.get("/login", function(req, res) {
+    consent(res, "");
+});
+
+// once a user has authenticated, generate their authorization token
+app.get("/token", function(req, res) {
+    
+    // ensure this is all part of the same authorization chain
+    if (req.cookies.authstate !== req.query.state) {
+        res.status(400).send("Bad Request: this does not appear to be part of the same authorization chain.");
+    } else {
+    
+        // get the access token
+        getAccessTokenFromCode(req.query.code).then(function(tokenResponse) {
+
+            // generate a JWT
+            getJwtFromToken(tokenResponse.accessToken, tokenResponse.userId).then(function(jwt) {
+            
+                // return the JWT to the client
+                res.cookie("accessToken", jwt, {
+                    maxAge: 4 * 60 * 60 * 1000 // 4 hours
+                });
+                res.redirect("/visualize.html");
+
+            }, function(msg) {
+                res.status(401).send("Unauthorized (jwt): " + msg);
+            }).done();
+        
+        }, function(msg) {
+            res.status(401).send("Unauthorized (access token): " + msg);
+        }).done();
+
+    }
+ 
+});
+
+
+/*
+app.get("/auth", function(req, res) {
+    // this authenticates using AAD and returns a custom JWT with appropriate identity and permissions
+
+    const directory = "microsoft.onmicrosoft.com";
+
+    const context = new adal.AuthenticationContext("https://login.microsoftonline.com/" + directory);
+    context.acquireTokenWithClientCredentials("https://graph.microsoft.com/", clientId, clientSecret, function(err, tokenResponse) {
+        if (!err) {
+
+            request.get({
+                uri: `https://management.azure.com/subscriptions/${subscriptionId}/resourcegroups/${resourceGroup}/providers/Microsoft.DataFactory/datafactories/${dataFactory}/datasets/${dataset}/sliceruns?start=${startTimestamp}&api-version=${adf_version}`,
+                headers: { Authorization: "Bearer " + tokenResponse.accessToken },
+                json: true
+            }, (err, response, body) => {
+                if (!err && response.statusCode == 200) {
+                    res.send(response.body.value);
+                } else {
+                    console.log( JSON.stringify(response.body) );
+                    res.status(500).send("err(400): " + (err || JSON.stringify(response.body)));
+                }
+            });
+
+        } else {
+            res.status(500).send("err(200): Server calls could not authenticate.");
+        }
+    });
+
+
+});
+*/
+
+// redirect to default page
+app.get("/", function (req, res) {
+    res.redirect("default.html");
+});
+
+// start the web server listening on port 80
 app.listen(80, function () {
     console.log("Example app listening on port 80...");
 });
