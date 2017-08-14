@@ -538,8 +538,6 @@ app.get("/login", function(req, res) {
 // once a user has authenticated, generate their authorization token
 app.get("/token", function(req, res) {
     
-console.log("redirect: " + req.query.redirect);
-
     // ensure this is all part of the same authorization chain
     if (req.cookies.authstate !== req.query.state) {
         res.status(400).send("Bad Request: this does not appear to be part of the same authorization chain.");
