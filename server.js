@@ -523,7 +523,8 @@ app.get("/token", function(req, res) {
                         res.redirect("/visualize.html");
 
                     } else {
-                        res.status(401).send("Unauthorized (membership): " + membershipError);
+                        console.error(response);
+                        res.status(401).send("Unauthorized (membership): " + ((membershipError) ? membershipError : response.statusCode));
                     }
                 });
 
