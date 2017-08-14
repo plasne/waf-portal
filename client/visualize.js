@@ -43,7 +43,7 @@ function populateMetrics() {
         $("#metrics-response-avg").text(metrics.response.avg + "ms");
 
     }).fail(function(xhr, status, error) {
-        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+        if (xhr.status == 401 && xhr.responseText == "authentication") {
             window.open("/login", "_self");
         } else {
             alert("fail");
@@ -80,7 +80,7 @@ function populateThreatCharts() {
         populateThreatChart(t.byType, threat_type_chart);
         populateThreatChart(t.byCountry, threat_location_chart);
     }).fail(function(xhr, status, error) {
-        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+        if (xhr.status == 401 && xhr.responseText == "authentication") {
             window.open("/login", "_self");
         } else {
             alert("fail");
@@ -185,7 +185,7 @@ function populateTrafficCharts() {
         populateTrafficChart(traffic.in, traffic_in_chart, traffic.timeframe, "#traffic-in-last");
         populateTrafficChart(traffic.out, traffic_out_chart, traffic.timeframe, "#traffic-out-last");
     }).fail(function(xhr, status, error) {
-        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+        if (xhr.status == 401 && xhr.responseText == "authentication") {
             window.open("/login", "_self");
         } else {
             alert("fail");

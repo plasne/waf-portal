@@ -47,7 +47,7 @@ function query(table) {
         isProcessing(false);
     }).fail(function(xhr, status, error) {
         isProcessing(false);
-        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+        if (xhr.status == 401 && xhr.responseText == "authentication") {
             window.open("/login", "_self");
         } else {
             alert("fail");
@@ -155,7 +155,7 @@ function displayCriteria(table) {
         query(table);
 
     }).fail(function(xhr, status, error) {
-        if (xhr.status == 401 && xhr.responseText == "unauthorized") {
+        if (xhr.status == 401 && xhr.responseText == "authentication") {
             window.open("/login", "_self");
         } else {
             alert("fail");
