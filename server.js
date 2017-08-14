@@ -13,38 +13,44 @@ const request = require("request");
 const app = express();
 app.use(cookieParser());
 app.use(express.static("client"));
+
 express.request.accessToken = function() {
     const req = this;
     if (req.cookies.accessToken) return req.cookies.accessToken;
     if (req.get("Authorization")) return req.get("Authorization").replace("Bearer ", "");
     return null;
 };
+
 express.request.hasRights = function(rights) {
-    const req = this;
-    const token = req.accessToken();
-    if (token) {
-        let userHasRight = false;
-        nJwt.verify(token, jwtKey, function(err, verified) {
-            if (!err) {
-                if (Array.isArray(rights)) {
-                    userHasRight = verified.body.rights.hasIntersection(rights);
+    return new Promise((resolve, reject) => {
+        const req = this;
+        const token = req.accessToken();
+        if (token) {
+            nJwt.verify(token, jwtKey, function(err, verified) {
+                if (!err) {
+                    if (Array.isArray(rights)) {
+                        if (verified.body.rights.hasIntersection(rights)) {
+                            resolve();
+                        } else {
+                            reject("authorization");
+                        }
+                    } else {
+                        if (verified.body.rights.indexOf(rights) > -1) {
+                            resolve();
+                        } else {
+                            reject("authorization");
+                        }
+                    }
                 } else {
-                    console.log("1: " +  verified.body.rights.indexOf(rights) );
-                    console.log("2: " +  (verified.body.rights.indexOf(rights) > -1) );
-
-                    userHasRight = (verified.body.rights.indexOf(rights) > -1);
-
-                    console.log("3: " +  userHasRight );
-
+                    reject("authentication", err);
                 }
-            }
-        });
-        console.log("userHasRight: " + userHasRight);
-        return userHasRight;
-    } else {
-        return false;
-    }
+            });
+        } else {
+            reject("authentication");
+        }
+    });
 };
+
 express.request.hasRight = function(right) {
     return this.hasRights(right); // this is just an alias
 };
@@ -152,7 +158,7 @@ Array.prototype.isMatchWithAll = function(val) {
 
 // get a list of all applications
 app.get("/applications", function(req, res) {
-    if (req.hasRight("read")) {
+    req.hasRight("read").then(() => {
         const apps = [];
 
         const count = random(5, 9);
@@ -205,9 +211,9 @@ app.get("/applications", function(req, res) {
         }
 
         res.send(apps);
-    } else {
-        res.status(401).send("Unauthorized for read.")
-    }
+    }, reason => {
+        res.status(401).send(reason);
+    });
 });
 
 // get a list of all metrics
