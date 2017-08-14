@@ -472,7 +472,7 @@ app.get("/token", function(req, res) {
     
         // get authorization for the Microsoft Graph
         const context = new adal.AuthenticationContext(authority);
-        context.acquireTokenWithAuthorizationCode(code, redirectUri, resource, clientId, clientSecret, function(tokenError, tokenResponse) {
+        context.acquireTokenWithAuthorizationCode(req.query.code, redirectUri, resource, clientId, clientSecret, function(tokenError, tokenResponse) {
             if (!tokenError) {
 
                 // get the user membership
