@@ -26,7 +26,8 @@ express.request.hasRights = function(rights) {
     if (token) {
         nJwt.verify(token, jwtKey, function(err, verified) {
             if (!err) {
-                console.log("has rights: " + verified.body.rights + " is Array? " + Array.isArray(verified.body.rights) );
+                console.log("looking for: " + rights);
+                console.log("has rights: " + verified.body.rights + " is Array? " + Array.isArray(verified.body.rights) + " [0]: " + verified.body.rights[0] );
                 if (Array.isArray(rights)) {
                     console.log("check as array");
                     return verified.body.rights.hasIntersection(rights);
