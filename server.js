@@ -515,9 +515,8 @@ function consent(res, add) {
             res.status(500).send("Server Error: a crypto token couldn't be created to secure the session.");
         } else {
             const token = buf.toString("base64").replace(/\//g, "_").replace(/\+/g, "-");
-            res.cookie("authstate", token);
-            const r = redirectUri + "?redirect=http://www.yahoo.com";
-            const url = authority + "/oauth2/authorize?response_type=code&client_id=" + qs.escape(clientId) + "&redirect_uri=" + qs.escape(r) + "&state=" + qs.escape(token) + "&resource=" + qs.escape(resource) + add;
+            res.cookie("authstate", token, { maxAge: 10 * 60 * 1000 }); // 10 min
+            const url = authority + "/oauth2/authorize?response_type=code&client_id=" + qs.escape(clientId) + "&redirect_uri=" + qs.escape(redirectUri) + "&state=" + qs.escape(token) + "&resource=" + qs.escape(resource) + add;
             res.redirect(url);
         }
     });
@@ -530,6 +529,9 @@ app.get("/consent", function(req, res) {
 
 // a login with user consent (if the admin has already consented there is no additional consent required)
 app.get("/login", function(req, res) {
+    if (req.query.redirect) {
+        res.cookie("redirect", req.query.redirect, { maxAge: 10 * 60 * 1000 }); // 10 min
+    }
     consent(res, "");
 });
 
@@ -589,11 +591,18 @@ console.log("redirect: " + req.query.redirect);
                         const jwt = nJwt.create(claims, jwtKey);
                         jwt.setExpiration(new Date().getTime() + duration);
 
-                        // set the JWT into a cookie and redirect
+                        // set the JWT into a cookie
                         res.cookie("accessToken", jwt.compact(), {
                             maxAge: duration
                         });
-                        res.redirect("/applications.html");
+
+                        // redirect
+                        if (req.cookies.redirect) {
+                            res.cookie("redirect", "", { expires: new Date() });
+                            res.redirect(req.cookies.redirect);
+                        } else {
+                            res.redirect("/applications.html");
+                        }
 
                     } else {
                         res.status(401).send("Unauthorized (membership): " + ((membershipError) ? membershipError : response.statusCode + ", " + body));

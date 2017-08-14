@@ -25,7 +25,7 @@ function query(table) {
     }).fail(function(xhr, status, error) {
         isProcessing(false);
         if (xhr.status == 401 && xhr.responseText == "authentication") {
-            window.open("/login", "_self");
+            window.open("/login?redirect=/application.html", "_self");
         } else {
             alert("fail");
         }

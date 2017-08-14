@@ -44,7 +44,7 @@ function populateMetrics() {
 
     }).fail(function(xhr, status, error) {
         if (xhr.status == 401 && xhr.responseText == "authentication") {
-            window.open("/login", "_self");
+            window.open("/login?redirect=/visualize.html", "_self");
         } else {
             alert("fail");
         }
@@ -81,7 +81,7 @@ function populateThreatCharts() {
         populateThreatChart(t.byCountry, threat_location_chart);
     }).fail(function(xhr, status, error) {
         if (xhr.status == 401 && xhr.responseText == "authentication") {
-            window.open("/login", "_self");
+            window.open("/login?redirect=/visualize.html", "_self");
         } else {
             alert("fail");
         }
@@ -186,7 +186,7 @@ function populateTrafficCharts() {
         populateTrafficChart(traffic.out, traffic_out_chart, traffic.timeframe, "#traffic-out-last");
     }).fail(function(xhr, status, error) {
         if (xhr.status == 401 && xhr.responseText == "authentication") {
-            window.open("/login", "_self");
+            window.open("/login?redirect=/visualize.html", "_self");
         } else {
             alert("fail");
         }
