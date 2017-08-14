@@ -55,6 +55,15 @@ express.request.hasRight = function(right) {
     return this.hasRights(right); // this is just an alias
 };
 
+express.response.unauthorized = function(reason) {
+    const res = this;
+    if (reason == "authentication") {
+        res.redirect("/login");
+    } else {
+        res.status(401).send(reason);
+    }
+}
+
 // globals
 const authority = config.get("authority");
 const clientId = config.get("clientId");
@@ -212,135 +221,147 @@ app.get("/applications", function(req, res) {
 
         res.send(apps);
     }, reason => {
-        res.status(401).send(reason);
+        res.unauthorized(reason);
     });
 });
 
 // get a list of all metrics
 app.get("/metrics", function(req, res) {
+    req.hasRight("read").then(() => {
 
-    // generate the frame to hold the data
-    const metrics = {
-        protection: {
-            allowed: 0,
-            blocked: 0,
-            status: "unknown"
-        },
-        availability: {
-            success: 0,
-            fail: 0,
-            status: "unknown"
-        },
-        response: {
-            avg: 0,
-            status: "unknown"
+        // generate the frame to hold the data
+        const metrics = {
+            protection: {
+                allowed: 0,
+                blocked: 0,
+                status: "unknown"
+            },
+            availability: {
+                success: 0,
+                fail: 0,
+                status: "unknown"
+            },
+            response: {
+                avg: 0,
+                status: "unknown"
+            }
+        };
+
+        // generate protection
+        metrics.protection.allowed = random(10000, 20000);
+        metrics.protection.blocked = random(0, 15000);
+        if (metrics.protection.blocked > metrics.protection.allowed) {
+            metrics.protection.status = "bad";
+        } else if (metrics.protection.blocked > (metrics.protection.allowed / 2)) {
+            metrics.protection.status = "warn";
+        } else {
+            metrics.protection.status = "good";
         }
-    };
 
-    // generate protection
-    metrics.protection.allowed = random(10000, 20000);
-    metrics.protection.blocked = random(0, 15000);
-    if (metrics.protection.blocked > metrics.protection.allowed) {
-        metrics.protection.status = "bad";
-    } else if (metrics.protection.blocked > (metrics.protection.allowed / 2)) {
-        metrics.protection.status = "warn";
-    } else {
-        metrics.protection.status = "good";
-    }
+        // generate availability
+        metrics.availability.success = random(10000, 20000);
+        metrics.availability.fail = random(0, 1500);
+        const availability = metrics.availability.success / (metrics.availability.success + metrics.availability.fail);
+        if (availability > 0.95) {
+            metrics.availability.status = "good";
+        } else if (availability > 0.90) {
+            metrics.availability.status = "warn";
+        } else {
+            metrics.availability.status = "bad";
+        }
 
-    // generate availability
-    metrics.availability.success = random(10000, 20000);
-    metrics.availability.fail = random(0, 1500);
-    const availability = metrics.availability.success / (metrics.availability.success + metrics.availability.fail);
-    if (availability > 0.95) {
-        metrics.availability.status = "good";
-    } else if (availability > 0.90) {
-        metrics.availability.status = "warn";
-    } else {
-        metrics.availability.status = "bad";
-    }
+        // generate a range of response times
+        const response = randomResponseTime();
+        metrics.response.status = response.category;
+        metrics.response.avg = response.time;
 
-    // generate a range of response times
-    const response = randomResponseTime();
-    metrics.response.status = response.category;
-    metrics.response.avg = response.time;
-
-    res.send(metrics);
+        res.send(metrics);
+    }, reason => {
+        res.unauthorized(reason);
+    });
 });
 
 // get a list of all threats
 app.get("/threats", function(req, res) {
+    req.hasRight("read").then(() => {
 
-    // generate the frame to hold the data
-    const threats = {
-        byType: [],
-        byCountry: []
-    }
+        // generate the frame to hold the data
+        const threats = {
+            byType: [],
+            byCountry: []
+        }
 
-    // group by type
-    listOfViolations().forEach(category => {
-        category.violations.forEach(violation => {
-            if (random(1, 4) === 1) { // only generate some
-                threats.byType.push(violation);
+        // group by type
+        listOfViolations().forEach(category => {
+            category.violations.forEach(violation => {
+                if (random(1, 4) === 1) { // only generate some
+                    threats.byType.push(violation);
+                }
+            });
+        });
+
+        // group by location
+        listOfCountries().forEach(country => {
+            if (random(1, 2) === 1) { // only generate some
+                country.count = random(1, 30);
+                threats.byCountry.push(country);
             }
         });
-    });
 
-    // group by location
-    listOfCountries().forEach(country => {
-        if (random(1, 2) === 1) { // only generate some
-            country.count = random(1, 30);
-            threats.byCountry.push(country);
-        }
+        res.send(threats);
+    }, reason => {
+        res.unauthorized(reason);
     });
-
-    res.send(threats);
 });
 
 // get all the traffic data
 app.get("/traffic", function(req, res) {
+    req.hasRight("read").then(() => {
 
-    // generate the frame to hold the data
-    const traffic = {
-        timeframe: [],
-        rps: {
-            http: [],
-            https: []
-        },
-        in: {
-            http: [],
-            https: []
-        },
-        out: {
-            http: [],
-            https: []
+        // generate the frame to hold the data
+        const traffic = {
+            timeframe: [],
+            rps: {
+                http: [],
+                https: []
+            },
+            in: {
+                http: [],
+                https: []
+            },
+            out: {
+                http: [],
+                https: []
+            }
+        };
+
+        // generate the timeframe (past hour)
+        const coeff = 1000 * 60 * 1; // round to nearest min
+        const now = new Date(Math.round(new Date().getTime() / coeff) * coeff);
+        for (let i = 60; i > 0; i--) {
+            const slice = now - (i * 60 * 1000); // -60 min, -59 min, ...
+            traffic.timeframe.push(slice);
         }
-    };
 
-    // generate the timeframe (past hour)
-    const coeff = 1000 * 60 * 1; // round to nearest min
-    const now = new Date(Math.round(new Date().getTime() / coeff) * coeff);
-    for (let i = 60; i > 0; i--) {
-        const slice = now - (i * 60 * 1000); // -60 min, -59 min, ...
-        traffic.timeframe.push(slice);
-    }
+        // randomize the data
+        const randomize = (min, max, count) => {
+            const data = [];
+            for (let i = 0; i < count; i++) {
+                data.push(random(min, max));
+            }
+            return data;
+        };
+        traffic.rps.http = randomize(14, 20, 60);
+        traffic.rps.https = randomize(14, 20, 60);
+        traffic.in.http = randomize(15000, 20000, 60);
+        traffic.in.https = randomize(15000, 20000, 60);
+        traffic.out.http = randomize(150000, 200000, 60);
+        traffic.out.https = randomize(150000, 200000, 60);
 
-    // randomize the data
-    const randomize = (min, max, count) => {
-        const data = [];
-        for (let i = 0; i < count; i++) {
-            data.push(random(min, max));
-        }
-        return data;
-    };
-    traffic.rps.http = randomize(14, 20, 60);
-    traffic.rps.https = randomize(14, 20, 60);
-    traffic.in.http = randomize(15000, 20000, 60);
-    traffic.in.https = randomize(15000, 20000, 60);
-    traffic.out.http = randomize(150000, 200000, 60);
-    traffic.out.https = randomize(150000, 200000, 60);
-
-    res.send(traffic);
+        res.send(traffic);
+    }, reason => {
+        res.unauthorized(reason);
+    });
 });
 
 // get the list of violations
@@ -371,7 +392,11 @@ function listOfViolations() {
 }
 
 app.get("/violations", function(req, res) {
-    res.send(listOfViolations());
+    req.hasRight("read").then(() => {
+        res.send(listOfViolations());
+    }, reason => {
+        res.unauthorized(reason);
+    });
 });
 
 // get the list of all countries
@@ -396,91 +421,95 @@ app.get("/countries", function(req, res) {
 
 // get all specific logs
 app.get("/logs", function(req, res) {
-    const now = new Date();
+    req.hasRight("read").then(() => {
+        const now = new Date();
 
-    // status
-    const status = req.query.status;
+        // status
+        const status = req.query.status;
 
-    // violations
-    let violations = req.query.violations;
-    if (violations) violations = violations.toArrayOfStrings();
+        // violations
+        let violations = req.query.violations;
+        if (violations) violations = violations.toArrayOfStrings();
 
-    // response code
-    let responseCode = req.query.responseCode;
-    if (responseCode) responseCode = responseCode.toArrayOfIntegers();
+        // response code
+        let responseCode = req.query.responseCode;
+        if (responseCode) responseCode = responseCode.toArrayOfIntegers();
 
-    // response time
-    let responseTime = req.query.responseTime;
-    if (responseTime) responseTime = responseTime.toArrayOfStrings();
+        // response time
+        let responseTime = req.query.responseTime;
+        if (responseTime) responseTime = responseTime.toArrayOfStrings();
 
-    // from date/time
-    let from = req.query.from;
-    if (isNaN(from)) {
-        from = now - (24 * 60 * 60 * 1000);
-    } else {
-        from = parseInt(from);
-    }
-
-    // to date/time
-    let to = req.query.to;
-    if (isNaN(to)) {
-        to = now;
-    } else {
-        to = parseInt(to);
-    }
-
-    // country
-    let country = req.query.country;
-    if (country) country = country.toArrayOfStrings();
-
-    // generate a list of violations
-    const violations_list = listOfViolations().reduce((output, category) => {
-        category.violations.forEach(violation => {
-            output.push(violation.id);
-        });
-        return output;
-    }, []);
-
-    // generate data
-    const logs = [];
-    for (let i = from; i < to; i += (60 * 1000)) {
-        const _status = randomFromList([ "allowed", "blocked" ]);
-        const _violations = (_status === "blocked") ? randomFromListToArray(violations_list, random(1, 3)) : [];
-        const _rating = (status === "allowed") ? 0 : random(1, 5);
-        const _response = randomResponseTime();
-        const _responseCode = randomFromList([ 200, 200, 200, 200, 404, 500 ]);
-        const _country = randomFromList(listOfCountries());
-        const _supportId = "00000000" + random(1, 99999999);
-        if (
-            (!status || status == _status) &&
-            (!violations || violations.hasIntersection(_violations)) &&
-            (!responseCode || responseCode.indexOf(_responseCode) > -1) &&
-            (!responseTime || responseTime.isMatchWithAll(_response.time)) &&
-            (!country || country.indexOf(_country.id) > -1)
-        ) {
-            logs.push({
-                status: _status,
-                violations: _violations,
-                rating: _rating,
-                time: i,
-                srcIP: random(1, 255) + "." + random(1, 255) + "." + random(1, 255) + "." + random(1, 255),
-                countryId: _country.id,
-                country: _country.name,
-                url: randomFromList([ "http://application.com/admin", "http://application.com/login", "https://application.com/dashboard", "https://application.com/dashboard?scope=month" ]),
-                responseCode: _responseCode,
-                responseCategory: _response.category,
-                responseTime: _response.time,
-                securityPolicy: randomFromList([ "security_policy_1.1", "security_policy_1.2", "security_policy_1.3" ]),
-                supportId: _supportId.substr(_supportId.length - 8),
-                severity: (_status === "blocked") ? "Error" : "OK",
-                username: randomFromList([ "N/A", "N/A", "N/A", "N/A", "pelasne", "haroldw" ]),
-                sessionId: randomFromList([ "a3309aacb2d105a1", "c47e148k49d9fh4s", "3k32jcc88841383a", "ejfjcjvv1347dkv3" ]),
-                dstIP: "10.0.0." + random(1, 255)
-            });
+        // from date/time
+        let from = req.query.from;
+        if (isNaN(from)) {
+            from = now - (24 * 60 * 60 * 1000);
+        } else {
+            from = parseInt(from);
         }
-    }
 
-    res.send(logs);
+        // to date/time
+        let to = req.query.to;
+        if (isNaN(to)) {
+            to = now;
+        } else {
+            to = parseInt(to);
+        }
+
+        // country
+        let country = req.query.country;
+        if (country) country = country.toArrayOfStrings();
+
+        // generate a list of violations
+        const violations_list = listOfViolations().reduce((output, category) => {
+            category.violations.forEach(violation => {
+                output.push(violation.id);
+            });
+            return output;
+        }, []);
+
+        // generate data
+        const logs = [];
+        for (let i = from; i < to; i += (60 * 1000)) {
+            const _status = randomFromList([ "allowed", "blocked" ]);
+            const _violations = (_status === "blocked") ? randomFromListToArray(violations_list, random(1, 3)) : [];
+            const _rating = (status === "allowed") ? 0 : random(1, 5);
+            const _response = randomResponseTime();
+            const _responseCode = randomFromList([ 200, 200, 200, 200, 404, 500 ]);
+            const _country = randomFromList(listOfCountries());
+            const _supportId = "00000000" + random(1, 99999999);
+            if (
+                (!status || status == _status) &&
+                (!violations || violations.hasIntersection(_violations)) &&
+                (!responseCode || responseCode.indexOf(_responseCode) > -1) &&
+                (!responseTime || responseTime.isMatchWithAll(_response.time)) &&
+                (!country || country.indexOf(_country.id) > -1)
+            ) {
+                logs.push({
+                    status: _status,
+                    violations: _violations,
+                    rating: _rating,
+                    time: i,
+                    srcIP: random(1, 255) + "." + random(1, 255) + "." + random(1, 255) + "." + random(1, 255),
+                    countryId: _country.id,
+                    country: _country.name,
+                    url: randomFromList([ "http://application.com/admin", "http://application.com/login", "https://application.com/dashboard", "https://application.com/dashboard?scope=month" ]),
+                    responseCode: _responseCode,
+                    responseCategory: _response.category,
+                    responseTime: _response.time,
+                    securityPolicy: randomFromList([ "security_policy_1.1", "security_policy_1.2", "security_policy_1.3" ]),
+                    supportId: _supportId.substr(_supportId.length - 8),
+                    severity: (_status === "blocked") ? "Error" : "OK",
+                    username: randomFromList([ "N/A", "N/A", "N/A", "N/A", "pelasne", "haroldw" ]),
+                    sessionId: randomFromList([ "a3309aacb2d105a1", "c47e148k49d9fh4s", "3k32jcc88841383a", "ejfjcjvv1347dkv3" ]),
+                    dstIP: "10.0.0." + random(1, 255)
+                });
+            }
+        }
+
+        res.send(logs);
+    }, reason => {
+        res.unauthorized(reason);
+    });
 });
 
 // redirect through the AAD consent pattern
