@@ -3,6 +3,6 @@
     "clientId": "0b135ab7-9af8-4f8d-a559-9860beb0e95b",
     "clientSecret": "a0iYeht41POwMbhkTacb8kpgXa9vWgaUw5vhsig2f2Q=",
     "resource": "https://graph.microsoft.com/",
-    "redirectUri": "http://pelasne-web.azurewebsites.net/token",
+    "redirectUri": "http://pelasne-waf.eastus2.cloudapp.azure.com/token",
     "jwtKey": "extra-super-secret"
 }
