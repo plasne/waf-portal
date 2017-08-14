@@ -512,6 +512,11 @@ app.get("/logs", function(req, res) {
     });
 });
 
+app.get("/logout", function(req, res) {
+    res.cookie("accessToken", "", { expires: new Date() });
+    res.redirect("/default.html");
+});
+
 // redirect through the AAD consent pattern
 function consent(res, add) {
     crypto.randomBytes(48, function(err, buf) {

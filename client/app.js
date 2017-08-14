@@ -50,7 +50,7 @@ $(document).ready(function() {
     menuItem("Visualize", "/visualize.html").appendTo(menu);
     menuItem("Logs", "/logs.html").appendTo(menu);
     menuItem("Violations", "/violations.html").addClass("menu-sep").appendTo(menu);
-    menuItem("Logout", "/default.html").appendTo(menu);
+    menuItem("Logout", "/logout").appendTo(menu);
 
     // open or close the menu    
     $("#header .icon").click(function() {
