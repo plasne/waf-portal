@@ -3,6 +3,7 @@
 const config = require("config");
 const express = require("express");
 const crypto = require("crypto");
+const cookieParser = require("cookie-parser");
 const qs = require("querystring");
 const adal = require("adal-node");
 const nJwt = require("njwt");
