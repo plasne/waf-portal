@@ -24,7 +24,8 @@ function query(table) {
 
     }).fail(function(xhr, status, error) {
         isProcessing(false);
-        alert("fail");
+        alert(status);
+        alert(error);
     });
 }
 

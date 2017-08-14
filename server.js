@@ -55,15 +55,6 @@ express.request.hasRight = function(right) {
     return this.hasRights(right); // this is just an alias
 };
 
-express.response.unauthorized = function(reason) {
-    const res = this;
-    if (reason == "authentication") {
-        res.redirect("/login");
-    } else {
-        res.status(401).send(reason);
-    }
-}
-
 // globals
 const authority = config.get("authority");
 const clientId = config.get("clientId");
@@ -221,7 +212,7 @@ app.get("/applications", function(req, res) {
 
         res.send(apps);
     }, reason => {
-        res.unauthorized(reason);
+        res.status(401).send(reason);
     });
 });
 
@@ -277,7 +268,7 @@ app.get("/metrics", function(req, res) {
 
         res.send(metrics);
     }, reason => {
-        res.unauthorized(reason);
+        res.status(401).send(reason);
     });
 });
 
@@ -310,7 +301,7 @@ app.get("/threats", function(req, res) {
 
         res.send(threats);
     }, reason => {
-        res.unauthorized(reason);
+        res.status(401).send(reason);
     });
 });
 
@@ -360,7 +351,7 @@ app.get("/traffic", function(req, res) {
 
         res.send(traffic);
     }, reason => {
-        res.unauthorized(reason);
+        res.status(401).send(reason);
     });
 });
 
@@ -395,7 +386,7 @@ app.get("/violations", function(req, res) {
     req.hasRight("read").then(() => {
         res.send(listOfViolations());
     }, reason => {
-        res.unauthorized(reason);
+        res.status(401).send(reason);
     });
 });
 
@@ -508,7 +499,7 @@ app.get("/logs", function(req, res) {
 
         res.send(logs);
     }, reason => {
-        res.unauthorized(reason);
+        res.status(401).send(reason);
     });
 });
 
