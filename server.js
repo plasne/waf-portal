@@ -30,13 +30,13 @@ express.request.hasRights = function(rights) {
                 if (!err) {
                     if (Array.isArray(rights)) {
                         if (verified.body.rights.hasIntersection(rights)) {
-                            resolve();
+                            resolve(verified);
                         } else {
                             reject("authorization");
                         }
                     } else {
                         if (verified.body.rights.indexOf(rights) > -1) {
-                            resolve();
+                            resolve(verified);
                         } else {
                             reject("authorization");
                         }
@@ -158,8 +158,10 @@ Array.prototype.isMatchWithAll = function(val) {
 
 // get a list of all applications
 app.get("/applications", function(req, res) {
-    req.hasRight("read").then(() => {
+    req.hasRight("read").then(token => {
         const apps = [];
+
+        // token.subKey == ????
 
         const count = random(5, 9);
         for (let i = 0; i < count; i++) {
@@ -218,7 +220,7 @@ app.get("/applications", function(req, res) {
 
 // get a list of all metrics
 app.get("/metrics", function(req, res) {
-    req.hasRight("read").then(() => {
+    req.hasRight("read").then(token => {
 
         // generate the frame to hold the data
         const metrics = {
@@ -274,7 +276,7 @@ app.get("/metrics", function(req, res) {
 
 // get a list of all threats
 app.get("/threats", function(req, res) {
-    req.hasRight("read").then(() => {
+    req.hasRight("read").then(token => {
 
         // generate the frame to hold the data
         const threats = {
@@ -307,7 +309,7 @@ app.get("/threats", function(req, res) {
 
 // get all the traffic data
 app.get("/traffic", function(req, res) {
-    req.hasRight("read").then(() => {
+    req.hasRight("read").then(token => {
 
         // generate the frame to hold the data
         const traffic = {
@@ -383,7 +385,7 @@ function listOfViolations() {
 }
 
 app.get("/violations", function(req, res) {
-    req.hasRight("read").then(() => {
+    req.hasRight("read").then(token => {
         res.send(listOfViolations());
     }, reason => {
         res.status(401).send(reason);
@@ -412,7 +414,7 @@ app.get("/countries", function(req, res) {
 
 // get all specific logs
 app.get("/logs", function(req, res) {
-    req.hasRight("read").then(() => {
+    req.hasRight("read").then(token => {
         const now = new Date();
 
         // status
@@ -576,12 +578,13 @@ app.get("/token", function(req, res) {
                             rights.push("read");
                         }
 
-                        // build the claims
+                        // build the claims (no sensitive information)
                         const claims = {
                             iss: issuer,
                             sub: tokenResponse.userId,
                             scope: membership,
-                            rights: rights
+                            rights: rights,
+                            subKey: "subKey"
                         };
 
                         // build the JWT

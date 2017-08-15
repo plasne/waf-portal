@@ -1,0 +1,10 @@
+{
+    "authority": "https://login.microsoftonline.com/common",
+    "clientId": "???????",
+    "clientSecret": "???????",
+    "resource": "https://graph.microsoft.com/",
+    "redirectUri": "https://???????/token",
+    "jwtKey": "extra-super-secret",
+    "issuer": "https://??????",
+    "groupPrefix": "testauth_"
+}
