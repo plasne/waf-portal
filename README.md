@@ -30,8 +30,40 @@ If you are going to host the code somewhere else, you can:
   * signup.html, signup.js, signup.css - page, code, and style for the signup page.
   
 * server.js - the code for backend services.
+* config - the configuration for the authentication part of the application.
 * package.json - the package file for npm (dependencies).
 * process.json - a process file if hosting using PM2 (for example, Azure Web Apps for Linux).
+
+## Azure AD Application
+
+This application is built as a multi-tenant web application so you must create an Azure AD application as per:
+
+* Create as "Web App / API" (not a native app).
+* In Properties, flag the app as "Multi-tenanted".
+* In Reply URLs, the URL must match exactly the "redirectUri" specified in the configuration.
+* In Required permissions, you can remove the Active Directory permissions.
+* In Required permissions, add the "Microsoft Graph" and the following:
+  * Access directory as the signed in user
+  * Read all groups
+  * Sign in and read user profile
+* In Keys, you can generate a key that will be used for the "clientSecret" in the configuration.
+
+## Configuration
+
+The "config/default.sample.json" file should be renamed as "default.json" and it should contain the following fields:
+
+```json
+{
+    "authority": "https://login.microsoftonline.com/common",
+    "clientId": "this should be the Application ID from the application you created above",
+    "clientSecret": "this should be the key for the application you created above",
+    "resource": "https://graph.microsoft.com/",
+    "redirectUri": "http://the_URL_of_your_app.com/token",
+    "jwtKey": "extra-super-secret",
+    "issuer": "http://the_URL_of_your_app",
+    "groupPrefix": "prefix_for_AD_groups_"
+}
+```
 
 ## Navigating
 
