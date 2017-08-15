@@ -6,7 +6,8 @@
 			"instances": 1,
 			"instance_var": "PM2_INSTANCE_ID",
 			"env": {
-				"PORT": 80
+				"DEBUG": "*",
+				"PORT": 8000
 			}
 		}
 	]
