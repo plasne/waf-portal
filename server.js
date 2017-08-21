@@ -625,6 +625,7 @@ app.get("/", function (req, res) {
 });
 
 // start the web server listening on port 80
-app.listen(process.env.PORT, function () {
-    console.log("WAF Portal listening on port " + process.env.PORT + "...");
+const port = process.env.PORT || 80;
+app.listen(port, function () {
+    console.log("WAF Portal listening on port " + port + "...");
 });
